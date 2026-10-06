@@ -1,0 +1,6 @@
+{
+  "name": "RFID & NFC Cybersecurity Course Curriculum & Lab Guide",
+  "description": "Temario completo, estructurado y 100% práctico para un curso de ciberseguridad enfocado en RFID y NFC, con laboratorios, hardware y vectores de ataque.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
