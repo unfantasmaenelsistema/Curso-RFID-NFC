@@ -5,6 +5,15 @@ import {
   CheckCircle2, AlertTriangle, Layers, Tag, ExternalLink, Copy, Check, Filter, Search, Radio
 } from 'lucide-react';
 
+const THEORY_PAGE_BY_MODULE: Record<number, string> = {
+  1: 'modulo-1-fundamentos-rf.html',
+  2: 'modulo-2-arsenal-pentesting.html',
+  3: 'modulo-3-baja-frecuencia-125khz.html',
+  4: 'modulo-4-alta-frecuencia-mifare.html',
+  5: 'modulo-5-ataques-mundo-real.html',
+  6: 'modulo-6-defensa-hardening-legal.html',
+};
+
 interface CurriculumViewProps {
   onNavigateToSignals?: () => void;
   onNavigateToSimulator?: () => void;
@@ -146,6 +155,17 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            {THEORY_PAGE_BY_MODULE[selectedModule.number] && (
+              <a
+                href={`teoria/${THEORY_PAGE_BY_MODULE[selectedModule.number]}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all hover:scale-[1.02]"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Leer Teoría Completa del Módulo</span>
+              </a>
+            )}
             {selectedModule.number === 1 && onNavigateToSpectrum && (
               <button
                 onClick={onNavigateToSpectrum}

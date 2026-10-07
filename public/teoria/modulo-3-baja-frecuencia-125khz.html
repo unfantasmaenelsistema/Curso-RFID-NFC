@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 3: Baja Frecuencia (LF 125 kHz) — Auditoría y Clonación | RFID Pentesting Master Course</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --indigo: #6366f1;
+      --code-bg: #030712;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem 1.5rem;
+    }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-primary { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    h1 {
+      font-size: 2.5rem;
+      line-height: 1.2;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 800px;
+    }
+    .objective-box {
+      background: linear-gradient(to right, rgba(16, 185, 129, 0.08), rgba(99, 102, 241, 0.04));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 2rem 0;
+    }
+    .objective-box strong { color: #34d399; font-size: 1.05rem; }
+    .toc {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .toc h3 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
+    .toc ol { padding-left: 1.5rem; }
+    .toc li { margin-bottom: 0.5rem; }
+    .toc a { color: var(--cyan); text-decoration: none; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; color: #38bdf8; }
+    section { margin-bottom: 4rem; }
+    h2 {
+      font-size: 1.85rem;
+      color: #f8fafc;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    h3 { font-size: 1.35rem; color: #38bdf8; margin: 2rem 0 1rem 0; }
+    h4 { font-size: 1.1rem; color: #fbbf24; margin: 1.5rem 0 0.5rem 0; }
+    p { margin-bottom: 1.2rem; }
+    ul, ol { margin-bottom: 1.2rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: #f8fafc; }
+    .callout {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.6rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .callout-info { border-left: 4px solid var(--cyan); }
+    .callout-warn { border-left: 4px solid var(--amber); background: rgba(245, 158, 11, 0.05); }
+    .callout-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .callout-info .callout-title { color: #38bdf8; }
+    .callout-warn .callout-title { color: #fbbf24; }
+    .callout-success { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.05); }
+    .callout-success .callout-title { color: #34d399; }
+    .lesson-meta {
+      background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(6,182,212,0.03));
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 0.75rem;
+      padding: 1.5rem 1.75rem;
+      margin: 1.75rem 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 2rem;
+    }
+    .lesson-meta h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #34d399;
+      margin: 0 0 0.6rem 0;
+    }
+    .lesson-meta ul { margin-bottom: 0; }
+    .lesson-meta ul li { margin-bottom: 0.3rem; font-size: 0.92rem; }
+    .lesson-meta .badge-bar { margin-bottom: 0; }
+    .lesson-meta .badge-bar + h4 { margin-top: 1rem; }
+    @media (max-width: 640px) {
+      .lesson-meta { grid-template-columns: 1fr; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: var(--card-bg);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.92rem;
+    }
+    th {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:last-child td { border-bottom: none; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin: 1.2rem 0;
+    }
+    code {
+      font-family: var(--font-mono);
+      background: rgba(148, 163, 184, 0.15);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.88em;
+    }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    .diagram-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 1.75rem 0;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .lab-box {
+      background: #0b1329;
+      border: 2px solid #2563eb;
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      margin: 2.5rem 0;
+    }
+    .lab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e3a8a;
+      padding-bottom: 0.75rem;
+    }
+    .lab-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-item { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #1e3a8a;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .step-content { flex: 1; }
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .container { max-width: 100%; padding: 0; }
+      pre, .diagram-box, .lab-box { border-color: #ccc; background: #f8fafc; color: #111; }
+      h1, h2, h3, strong { color: #000; -webkit-text-fill-color: initial; }
+    }
+
+  /* ===== Ghost Academy branded chrome ===== */
+  .ga-topbar {
+    background: #05070d;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .ga-topbar .ga-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .ga-topbar .ga-brand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(16,185,129,0.35));
+    transition: transform 0.25s;
+    border-radius: 8px;
+  }
+  .ga-topbar .ga-brand:hover img { transform: rotate(-8deg) scale(1.08); }
+  .ga-topbar .ga-brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .ga-topbar .ga-brand-text small { font-size: 0.62rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+  .ga-topbar .ga-brand-text strong { font-size: 0.82rem; color: var(--cyan); letter-spacing: 0.02em; }
+  .ga-topbar nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem; flex-wrap: wrap; }
+  .ga-topbar nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; white-space: nowrap; }
+  .ga-topbar nav a:hover { color: var(--cyan); }
+  .ga-footer {
+    border-top: 1px solid var(--card-border);
+    background: #05070d;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .ga-footer a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .ga-footer a:hover { text-decoration: underline; }
+  .ga-footer-nav { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) {
+    .ga-topbar { justify-content: center; text-align: center; }
+  }
+  </style>
+<script src="/_aistudio-iframe.js?v=2c34bde1"></script></head>
+<body>
+<div class="ga-topbar">
+    <a class="ga-brand" href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">
+      <img src="ghost-academy-logo.png" alt="Un Fantasma en el Sistema" />
+      <span class="ga-brand-text"><small>Ghost Academy</small><strong>SecLearn // RFID &amp; NFC Pentesting</strong></span>
+    </a>
+    <nav>
+      <a href="../">&#8962; Índice del Curso</a>
+      <a href="modulo-2-arsenal-pentesting.html">&larr; Módulo 2</a>
+      <a href="modulo-4-alta-frecuencia-mifare.html">Módulo 4 &rarr;</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">unfantasmaenelsistema.com</a>
+    </nav>
+  </div>
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge badge-primary">Módulo 3</span>
+        <span class="badge badge-cyan">Duración: 7 Horas</span>
+        <span class="badge badge-amber">85% Práctica Técnica</span>
+        <span class="badge badge-indigo">LF 125 kHz &amp; Wiegand</span>
+      </div>
+      <h1>Baja Frecuencia (LF 125 kHz) — Auditoría y Clonación</h1>
+      <p class="subtitle">Desmontando el estándar de 125 kHz presente en comunidades, parkings y oficinas: EM4100/4200, HID Prox II (Wiegand 26), Indala, AWID, Keri y el versátil chip Atmel T5577.</p>
+
+      <div class="objective-box">
+        <strong>🎯 Objetivo Operativo del Módulo:</strong>
+        <p style="margin: 0.4rem 0 0 0;">Dominar la captura en el aire de identificadores de 125 kHz sin cifrar, comprender la arquitectura Wiegand para ejecutar ataques de Replay y fuerza bruta en tornos de paso, y dominar la reprogramación y desprotección del chip Atmel T5577.</p>
+      </div>
+    </header>
+
+    <div class="toc">
+      <h3>📑 Índice de Contenidos del Módulo</h3>
+      <ol>
+        <li><a href="#tema1">EM4100 / EM4200: El Estándar Abierto de 64 bits</a>
+          <ul>
+            <li>Modulación Manchester, matriz de paridad bidimensional y texto plano cíclico</li>
+            <li><strong>Lab 3.1:</strong> Captura del ID de llavero azul y clonación en T5577 (lf search &amp; clone)</li>
+          </ul>
+        </li>
+        <li><a href="#tema2">HID Prox II y Formato Estándar Wiegand 26-bit (H10301)</a>
+          <ul>
+            <li>Anatomía de Wiegand: Paridad, Facility Code (8b) y Card Number (16b)</li>
+            <li>Fuerza bruta de Facility Codes y Card IDs en tornos de paso</li>
+            <li><strong>Lab 3.2:</strong> Replay Attack y emulación activa sin tarjeta física (lf hid sim)</li>
+          </ul>
+        </li>
+        <li><a href="#tema3">Indala, AWID, Keri y el Chip Atmel T5577 a Fondo</a>
+          <ul>
+            <li>Modulaciones PSK / FSK y permutación de bits en Indala</li>
+            <li>El Bloque 0 de Configuración del T5577 y protección por contraseña (PWD)</li>
+            <li><strong>Lab 3.3:</strong> Desbloqueo de T5577 protegido y reprogramación con perfiles propietarios</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <!-- TEMA 1 -->
+    <section id="tema1">
+      <h2>1. EM4100 / EM4200: El Estándar Abierto de 64 bits</h2>
+      <p>El protocolo EM4100 (desarrollado originalmente por EM Microelectronic) es el sistema de control de accesos más extendido del mundo en porteros automáticos, garajes residenciales y gimnasios de bajo presupuesto. <strong>Carece por completo de criptografía, desafíos de autenticación o secretos compartidos</strong>. Es un simple número transmitido en bucle abierto.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Comprender la modulación Manchester a 125 kHz.</li>
+            <li>Decodificar manualmente los 64 bits de un tag EM4100.</li>
+            <li>Clonar un llavero EM4100 en un chip regrabable T5577.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">Modulación Manchester</span>
+            <span class="badge badge-primary">Bits de sincronismo (9 unos)</span>
+            <span class="badge badge-primary">Paridad par</span>
+            <span class="badge badge-primary">Chip T5577 en modo emulación</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Proxmark3</span>
+            <span class="badge badge-cyan">Flipper Zero</span>
+            <span class="badge badge-cyan">Llaveros regrabables T5577</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>1.1 Matriz de Datos de 64 bits de EM4100</h3>
+      <p>Tan pronto como la bobina recibe suficiente energía del campo de 125 kHz, el chip transmite cíclicamente una trama exacta de 64 bits codificada en modulación <em>Manchester</em> a 64 ciclos de reloj por bit (RF/64):</p>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        ESTRUCTURA DE LA TRAMA DE 64 BITS EM4100                        │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   Encabezado (Preamble):  1  1  1  1  1  1  1  1  1  (9 bits a '1' inmutables)         │
+│                                                                                        │
+│   D00 D01 D02 D03  P0   -&gt; Versión / Customer Code Byte 0 (Nibble 1) + Paridad Par     │
+│   D04 D05 D06 D07  P1   -&gt; Versión / Customer Code Byte 0 (Nibble 2) + Paridad Par     │
+│   D08 D09 D10 D11  P2   -&gt; Data Byte 1 (Nibble 1)                    + Paridad Par     │
+│   D12 D13 D14 D15  P3   -&gt; Data Byte 1 (Nibble 2)                    + Paridad Par     │
+│   D16 D17 D18 D19  P4   -&gt; Data Byte 2 (Nibble 1)                    + Paridad Par     │
+│   D20 D21 D22 D23  P5   -&gt; Data Byte 2 (Nibble 2)                    + Paridad Par     │
+│   D24 D25 D26 D27  P6   -&gt; Data Byte 3 (Nibble 1)                    + Paridad Par     │
+│   D28 D29 D30 D31  P7   -&gt; Data Byte 3 (Nibble 2)                    + Paridad Par     │
+│   D32 D33 D34 D35  P8   -&gt; Data Byte 4 (Nibble 1)                    + Paridad Par     │
+│   D36 D37 D38 D39  P9   -&gt; Data Byte 4 (Nibble 2)                    + Paridad Par     │
+│  ─────────────────────                                                                 │
+│   PC0 PC1 PC2 PC3  S0   -&gt; Paridad de Columnas (4 bits paridad par) + Stop Bit ('0')   │
+│                                                                                        │
+│   * Total: 9 bits Preamble + (10 * 5 bits) + 4 bits Paridad Columna + 1 Stop Bit = 64. │
+│   * Carga Útil Real: 40 bits (5 Bytes de Identificador Único Hexadecimal).             │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <!-- LAB 3.1 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 3.1: Captura de ID y Clonación Completa a Chip T5577</div>
+          <span class="badge badge-primary">Clonación LF</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Leer un llavero azul de garaje (EM4100), extraer su identificador hexadecimal de 40 bits y clonarlo en un chip regrabable Atmel T5577 para abrir la puerta.</p>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Búsqueda y Lectura de la Credencial Legítima:</strong>
+            <pre><code>[usb] pm3 --&gt; lf search
+
+# Salida del cliente Proxmark3:
+[=] NOTE: some tags need to be in the antenna field for a while
+[+] [EM410x] Valid EM410x ID found!
+[+] Chipset: EM4100 / EM4200 compatible
+[+] Hex ID : 06 00 2B 4E 8A (5 bytes / 10 dígitos)
+[+] Decimal: 0002838154
+[+] Wiegand: 0x4E8A (20106)
+[+] Modulation: Manchester, RF/64</code></pre>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Clonación Inmediata al Chip T5577:</strong>
+            <p>Retira el llavero legítimo, coloca el llavero regrabable T5577 virgen en la antena LF y ejecuta:</p>
+            <pre><code>[usb] pm3 --&gt; lf em 410x clone --id 06002B4E8A
+
+# Salida esperada:
+[+] Preparing to clone EM410x ID 06002B4E8A to T5577...
+[+] Writing Block 0 (Config): 0x00148040 (Modulation: Manchester, Bitrate: RF/64)
+[+] Writing Block 1: 0x00000000
+[+] Writing Block 2: 0x06002B4E
+[+] Writing Block 3: 0x8A000000
+[+] Done writing. Verifying with lf search...
+[+] [EM410x] Valid EM410x ID found! Hex: 06002B4E8A
+[+] SUCCESS! Tag cloned correctly.</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">El T5577 responde de forma idéntica al llavero original ante cualquier lector.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 2 -->
+    <section id="tema2">
+      <h2>2. HID Prox II y Formato Estándar Wiegand 26-bit (H10301)</h2>
+      <p>Las tarjetas <strong>HID Prox</strong> (y sus lectores ProxPoint Plus / MaxiProx) dominan los edificios de oficinas gubernamentales y corporativos en todo el mundo occidental. La señal se transmite modulada en FSK (<em>Frequency Shift Keying</em>) alternando entre 125 kHz y 104 kHz.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Entender la estructura del formato estándar Wiegand de 26 bits (1 bit paridad + 8 bits Facility Code + 16 bits Card ID + 1 bit paridad).</li>
+            <li>Aprender a emular una tarjeta HID al vuelo sin tarjeta física usando el Proxmark3.</li>
+            <li>Realizar ataques de fuerza bruta de Facility Code en controles de acceso vulnerables.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-amber">Protocolo Wiegand</span>
+            <span class="badge badge-amber">Facility Code (FC)</span>
+            <span class="badge badge-amber">Card Number (CN)</span>
+            <span class="badge badge-amber">Emulación activa en bobina</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Proxmark3</span>
+            <span class="badge badge-cyan">Flipper Zero</span>
+            <span class="badge badge-cyan">Controladora Wiegand de pruebas</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>2.1 Anatomía del Protocolo Wiegand H10301 de 26 Bits</h3>
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        ESTRUCTURA DE TRAMA WIEGAND 26 BITS (H10301)                    │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   Bit 1:  [ EP ]  -&gt; Paridad Par (Even Parity) que protege los bits 2 al 13            │
+│   Bits 2-9:       [ FACILITY CODE ] (8 bits: rango 0 a 255)                            │
+│                   Identifica a la empresa, sede o cliente del sistema de accesos.      │
+│   Bits 10-25:     [ CARD NUMBER ]   (16 bits: rango 0 a 65535)                         │
+│                   Identificador individual del empleado / tarjeta.                     │
+│   Bit 26: [ OP ]  -&gt; Paridad Impar (Odd Parity) que protege los bits 14 al 25          │
+│                                                                                        │
+│   Ejemplo de Cálculo:                                                                  │
+│   Facility Code (FC): 104  = 0110 1000 (en binario)                                    │
+│   Card Number   (CN): 4521 = 0001 0001 1010 1001 (en binario)                          │
+│                                                                                        │
+│   - Bits 2-13  (12 bits): 01101000 0001 -&gt; Suma de 1s = 4 (Par) -&gt; Bit 1 (EP) = 0    │
+│   - Bits 14-25 (12 bits): 00011010 1001 -&gt; Suma de 1s = 5 (Impar)-&gt; Bit 26(OP) = 0   │
+│   Trama completa: 0 01101000 0001000110101001 0  (Hex: 0x2034352)                     │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ Vulnerabilidad de Espacio de Claves Reducido</div>
+        <p>Un Facility Code solo tiene 256 combinaciones posibles. Una empresa mediana suele emitir tarjetas correlativas a sus empleados (ej. empleados del 1000 al 1500). Si un atacante observa la tarjeta de un empleado en la cafetería con el número impreso <code>4520</code>, deducirá que el Facility Code de la empresa es válido y podrá generar credenciales para cualquier otro número.</p>
+      </div>
+
+      <!-- LAB 3.2 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 3.2: Replay Attack y Emulación Activa sin Tarjeta Física</div>
+          <span class="badge badge-amber">Ataque en Torno</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Suplantar a un usuario legítimo frente a un lector mural HID emulando la señal de radio directamente desde el Proxmark3 (o Flipper Zero) sin disponer de una tarjeta física.</p>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Lectura e Identificación de Formato HID:</strong>
+            <pre><code>[usb] pm3 --&gt; lf search
+
+[+] [HID Prox] Valid HID Prox ID found!
+[+] Format: H10301 (26-bit standard)
+[+] Facility Code (FC): 104
+[+] Card Number (CN)  : 4521
+[+] Raw Hex: 20046e3928</code></pre>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Emulación Activa en Directo (Simulación en Torno):</strong>
+            <pre><code># Simular la tarjeta acercando la bobina del Proxmark3 al lector
+[usb] pm3 --&gt; lf hid sim --fc 104 --cn 4521
+
+# El lector emitirá un 'BEEP', el LED cambiará de rojo a verde y el torno abrirá.
+# Para realizar un ataque de fuerza bruta sobre números correlativos:
+[usb] pm3 --&gt; lf hid brute --fc 104 --min 4500 --max 4550 --delay 1000</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">El torno o lector de pruebas activa el relé de apertura por emulación RF.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 3 -->
+    <section id="tema3">
+      <h2>3. Indala, AWID, Keri y el Chip Atmel T5577 a Fondo</h2>
+      <p>Mientras que EM4100 y HID utilizan modulaciones directas, tecnologías como <strong>Indala (Motorola)</strong> introducen capas de ofuscación mediante matrices de inversión y permutación de bits en modulación PSK (<em>Phase Shift Keying</em>).</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Aprender a configurar los bloques de configuración (Block 0) del T5577 para distintas modulaciones.</li>
+            <li>Desbloquear chips T5577 protegidos con contraseñas por defecto o mediante fuerza bruta.</li>
+            <li>Analizar por qué los lectores Indala aplican ofuscación invertida y cómo resolverla.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">Modulación FSK / PSK</span>
+            <span class="badge badge-primary">Config register T5577</span>
+            <span class="badge badge-primary">Contraseñas de bloque T5577</span>
+            <span class="badge badge-primary">AOR (Acquisition of Response)</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Proxmark3 con diccionario de contraseñas T5577</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>3.1 El Chip T5577: El Camaleón Universal de LF</h3>
+      <p>El chip Atmel / Microchip <strong>ATA5577</strong> dispone de 330 bits de memoria EEPROM divididos en 2 páginas:</p>
+      <ul>
+        <li><strong>Página 0, Bloque 0 (Bloque de Configuración):</strong> Define la modulación del front-end analógico (Manchester, FSK1, FSK2, PSK1, PSK2, PSK3, Bi-phase), la tasa de bits (RF/16, RF/32, RF/64), la longitud de la trama y la activación de protección por contraseña.</li>
+        <li><strong>Página 0, Bloques 1 a 6:</strong> Almacenan los bits de datos del payload de emulación.</li>
+        <li><strong>Página 0, Bloque 7:</strong> Contraseña maestra de 32 bits (si el bit PWD del Bloque 0 está activado).</li>
+      </ul>
+
+      <!-- LAB 3.3 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 3.3: Desbloqueo de T5577 Protegido y Reseteo de Configuración</div>
+          <span class="badge badge-indigo">Desbloqueo de Chip</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Recuperar un chip T5577 bloqueado con contraseña por duplicadores comerciales de cerrajería y restaurarlo a su estado de fábrica.</p>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Detección de Bloqueo por Contraseña en T5577:</strong>
+            <pre><code>[usb] pm3 --&gt; lf t55xx detect
+
+[+] Chip type: T55x7 detected
+[!] WARNING: Tag is password protected! Commands require -p &lt;pwd&gt;.</code></pre>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Ataque de Diccionario sobre Contraseñas de Duplicadores Comerciales:</strong>
+            <pre><code># Los duplicadores de cerrajería habituales (HandyBaby, iCopy, etc.) usan claves fijas
+[usb] pm3 --&gt; lf t55xx brute -d t55xx_default_pwds.dic
+
+[+] Testing password '51243648'...
+[+] Testing password '19920421'...
+[+] SUCCESS! Valid password found: '51243648' (0x51243648)
+
+# Desbloquear y limpiar el Bloque 0 para dejar el chip en modo virgen EM4100:
+[usb] pm3 --&gt; lf t55xx write -b 0 -d 00148040 -p 51243648</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Tarjeta T5577 desbloqueada y lista para reescritura.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>RFID & NFC Pentesting Master Course • Documento Técnico Oficial Autocontenido • Módulo 3</p>
+      <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #64748b;">Diseñado para ejecución local sin dependencias externas. Compatible con exportación a PDF para archivado técnico.</p>
+    </footer>
+  </div>
+  <div class="ga-footer">
+    <div class="ga-footer-nav">
+      <a href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">Ghost Academy</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">Un Fantasma en el Sistema</a>
+      <a href="../">Volver al Curso RFID &amp; NFC</a>
+    </div>
+    <p>&copy; Un Fantasma en el Sistema &middot; Ghost Academy &mdash; Contenido educativo para auditorías autorizadas.</p>
+  </div>
+</body>
+</html>

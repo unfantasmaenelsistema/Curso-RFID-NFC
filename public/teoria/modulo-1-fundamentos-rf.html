@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 1: Fundamentos de Radiofrecuencia y Protocolos | RFID Pentesting Master Course</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.2);
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --code-bg: #030712;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+      padding: 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem 1.5rem;
+    }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-primary { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    h1 {
+      font-size: 2.5rem;
+      line-height: 1.2;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 800px;
+    }
+    .objective-box {
+      background: linear-gradient(to right, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.04));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 2rem 0;
+    }
+    .objective-box strong { color: #34d399; font-size: 1.05rem; }
+    .toc {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .toc h3 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
+    .toc ol { padding-left: 1.5rem; }
+    .toc li { margin-bottom: 0.5rem; }
+    .toc a { color: var(--cyan); text-decoration: none; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; color: #38bdf8; }
+    section {
+      margin-bottom: 4rem;
+    }
+    h2 {
+      font-size: 1.85rem;
+      color: #f8fafc;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    h3 {
+      font-size: 1.35rem;
+      color: #38bdf8;
+      margin: 2rem 0 1rem 0;
+    }
+    h4 {
+      font-size: 1.1rem;
+      color: #fbbf24;
+      margin: 1.5rem 0 0.5rem 0;
+    }
+    p { margin-bottom: 1.2rem; }
+    ul, ol { margin-bottom: 1.2rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: #f8fafc; }
+    .callout {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.6rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .callout-info { border-left: 4px solid var(--cyan); }
+    .callout-warn { border-left: 4px solid var(--amber); background: rgba(245, 158, 11, 0.05); }
+    .callout-danger { border-left: 4px solid var(--rose); background: rgba(244, 63, 94, 0.05); }
+    .callout-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .callout-info .callout-title { color: #38bdf8; }
+    .callout-warn .callout-title { color: #fbbf24; }
+    .callout-danger .callout-title { color: #fb7185; }
+    .callout-success { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.05); }
+    .callout-success .callout-title { color: #34d399; }
+    .lesson-meta {
+      background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(6,182,212,0.03));
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 0.75rem;
+      padding: 1.5rem 1.75rem;
+      margin: 1.75rem 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 2rem;
+    }
+    .lesson-meta h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #34d399;
+      margin: 0 0 0.6rem 0;
+    }
+    .lesson-meta ul { margin-bottom: 0; }
+    .lesson-meta ul li { margin-bottom: 0.3rem; font-size: 0.92rem; }
+    .lesson-meta .badge-bar { margin-bottom: 0; }
+    .lesson-meta .badge-bar + h4 { margin-top: 1rem; }
+    @media (max-width: 640px) {
+      .lesson-meta { grid-template-columns: 1fr; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: var(--card-bg);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.92rem;
+    }
+    th {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin: 1.2rem 0;
+      position: relative;
+    }
+    code {
+      font-family: var(--font-mono);
+      background: rgba(148, 163, 184, 0.15);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.88em;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    .diagram-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 1.75rem 0;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .lab-box {
+      background: #0b1329;
+      border: 2px solid #2563eb;
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      margin: 2.5rem 0;
+    }
+    .lab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e3a8a;
+      padding-bottom: 0.75rem;
+    }
+    .lab-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #1e3a8a;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .step-content { flex: 1; }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #2563eb;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .action-btn:hover { background: #1d4ed8; }
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .container { max-width: 100%; padding: 0; }
+      pre, .diagram-box, .lab-box { border-color: #ccc; background: #f8fafc; color: #111; }
+      h1, h2, h3, strong { color: #000; -webkit-text-fill-color: initial; }
+      .badge { border: 1px solid #aaa; color: #111; }
+    }
+
+  /* ===== Ghost Academy branded chrome ===== */
+  .ga-topbar {
+    background: #05070d;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .ga-topbar .ga-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .ga-topbar .ga-brand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(16,185,129,0.35));
+    transition: transform 0.25s;
+    border-radius: 8px;
+  }
+  .ga-topbar .ga-brand:hover img { transform: rotate(-8deg) scale(1.08); }
+  .ga-topbar .ga-brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .ga-topbar .ga-brand-text small { font-size: 0.62rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+  .ga-topbar .ga-brand-text strong { font-size: 0.82rem; color: var(--cyan); letter-spacing: 0.02em; }
+  .ga-topbar nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem; flex-wrap: wrap; }
+  .ga-topbar nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; white-space: nowrap; }
+  .ga-topbar nav a:hover { color: var(--cyan); }
+  .ga-footer {
+    border-top: 1px solid var(--card-border);
+    background: #05070d;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .ga-footer a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .ga-footer a:hover { text-decoration: underline; }
+  .ga-footer-nav { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) {
+    .ga-topbar { justify-content: center; text-align: center; }
+  }
+  </style>
+<script src="/_aistudio-iframe.js?v=2c34bde1"></script></head>
+<body>
+<div class="ga-topbar">
+    <a class="ga-brand" href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">
+      <img src="ghost-academy-logo.png" alt="Un Fantasma en el Sistema" />
+      <span class="ga-brand-text"><small>Ghost Academy</small><strong>SecLearn // RFID &amp; NFC Pentesting</strong></span>
+    </a>
+    <nav>
+      <a href="../">&#8962; Índice del Curso</a>
+      
+      <a href="modulo-2-arsenal-pentesting.html">Módulo 2 &rarr;</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">unfantasmaenelsistema.com</a>
+    </nav>
+  </div>
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge badge-primary">Módulo 1</span>
+        <span class="badge badge-cyan">Duración: 6 Horas</span>
+        <span class="badge badge-amber">60% Práctica Técnica</span>
+        <span class="badge badge-primary">Autocontenido</span>
+      </div>
+      <h1>Fundamentos de Radiofrecuencia y Protocolos</h1>
+      <p class="subtitle">Identificación visual y de señales en control de accesos, acoplamiento electromagnético, tramas ISO 14443-A/B, decodificación ATQA/SAK y payloads NDEF.</p>
+
+      <div class="objective-box">
+        <strong>🎯 Objetivo Operativo del Módulo:</strong>
+        <p style="margin: 0.4rem 0 0 0;">Que el auditor aprenda a clasificar e identificar cualquier tarjeta plástica, llavero de proximidad o lector mural a simple vista mediante inspección física y electromagnética antes de desplegar costosas herramientas digitales.</p>
+      </div>
+    </header>
+
+    <div class="toc">
+      <h3>📑 Índice de Contenidos del Módulo</h3>
+      <ol>
+        <li><a href="#tema1">El Espectro Electromagnético en Control de Accesos</a>
+          <ul>
+            <li>Acoplamiento inductivo (campo cercano) vs radiación electromagnética (campo lejano)</li>
+            <li>Frecuencias esenciales: LF (125-134 kHz), HF (13.56 MHz) y UHF (860-960 MHz)</li>
+            <li><strong>Lab 1.1:</strong> Triage e inspección física a contraluz y bobinas detectoras LED</li>
+          </ul>
+        </li>
+        <li><a href="#tema2">Estándares y Tramas: ISO 14443-A/B vs ISO 15693</a>
+          <ul>
+            <li>Fases de anticolición y cascadas de UID (4, 7 y 10 bytes)</li>
+            <li>Interpretación de bytes ATQA y SAK para deducir fabricante y modelo de silicio</li>
+            <li><strong>Lab 1.2:</strong> Extracción e interpretación de tramas crudas con ACR122U y Smartphone</li>
+          </ul>
+        </li>
+        <li><a href="#tema3">NFC en Profundidad y Registros NDEF</a>
+          <ul>
+            <li>Modos de operación: Reader/Writer, Peer-to-Peer y Host Card Emulation (HCE)</li>
+            <li>Estructura de mensajes NDEF (TNF, Record Headers, Payloads)</li>
+            <li><strong>Lab 1.3:</strong> Inyección de payloads NDEF maliciosos (Redirección forzada y Evil Twin WiFi)</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <!-- TEMA 1 -->
+    <section id="tema1">
+      <h2>1. El Espectro Electromagnético en Control de Accesos</h2>
+      <p>La tecnología RFID (<em>Radio-Frequency Identification</em>) y su subconjunto NFC (<em>Near Field Communication</em>) fundamentan la totalidad de los sistemas modernos de control de accesos físicos (PACS - <em>Physical Access Control Systems</em>). Para realizar un pentesting riguroso, el primer paso no es lanzar scripts automatizados, sino comprender los principios físicos de acoplamiento de la señal.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Identificar las tres frecuencias principales de RFID y sus aplicaciones típicas.</li>
+            <li>Reconocer el bobinado interno (número de vueltas de la antena) para predecir la frecuencia.</li>
+            <li>Entender el principio de acoplamiento inductivo (campo cercano) vs radiación electromagnética (campo lejano).</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">Campo cercano (Near-Field)</span>
+            <span class="badge badge-primary">Resonancia LC</span>
+            <span class="badge badge-primary">Acoplamiento inductivo</span>
+            <span class="badge badge-primary">Modulación ASK/FSK/PSK</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Linterna LED de alta potencia</span>
+            <span class="badge badge-cyan">RFID Detector Coils (LED stickers)</span>
+            <span class="badge badge-cyan">Multímetro</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>1.1 Acoplamiento Inductivo (Campo Cercano) vs Radiación (Campo Lejano)</h3>
+      <p>La propagación de la energía electromagnética se divide en dos regímenes físicos fundamentales en función de la longitud de onda ($\lambda = c / f$):</p>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        FÍSICA DEL CAMPO ELECTROMAGNÉTICO EN RFID                        │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   CAMPO CERCANO REACTIVO (Near Field)              CAMPO LEJANO RADIATIVO (Far Field)  │
+│   Distancia r &lt; λ / (2π)                           Distancia r &gt;&gt; λ                    │
+│                                                                                        │
+│   [ Lector ]  ~ ~ ~ Líneas de Campo Magnético ~ ~ ~&gt;  [ Antena Tarjeta ]                │
+│   Bobina L1  (Transformador de núcleo de aire)        Bobina L2                       │
+│                                                                                        │
+│   * LF (125 kHz):  λ ≈ 2400 metros  → Campo cercano hasta ~380 metros                  │
+│   * HF (13.56 MHz): λ ≈ 22.1 metros → Campo cercano hasta ~3.5 metros                  │
+│   * En la práctica: El alcance está limitado a 2-10 cm por la baja potencia del lector.│
+│   * Transferencia de energía: Ley de Faraday-Lenz (Inducción mutua M).                 │
+│   * Retorno de datos: MODULACIÓN DE CARGA (Load Modulation). La tarjeta no emite señal,│
+│     sino que varía su impedancia interna forzando caídas de tensión en el lector.      │
+│                                                                                        │
+│   * UHF (868/915 MHz): λ ≈ 33 cm    → Campo lejano (Backscatter Radiativo).            │
+│     Ondas electromagnéticas transversales (E y H acoplados). Alcance: 3 a 12 metros.   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">💡 La Modulación de Carga (Load Modulation)</div>
+        <p>Una tarjeta pasiva HF o LF <strong>nunca transmite una señal de radio propia generada por un oscilador interno activo</strong>. En su lugar, el chip modifica la carga resistiva o capacitiva conectada a su propia bobina. Esto altera la corriente absorbida del campo magnético del lector, lo que induce variaciones de amplitud o fase en la bobina del lector. Escuchar una tarjeta a distancia requiere receptores ultrasensibles que detecten estas microvariaciones.</p>
+      </div>
+
+      <h3>1.2 Comparativa de las 3 Bandas Esenciales</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Banda</th>
+            <th>Frecuencia</th>
+            <th>Acoplamiento</th>
+            <th>Interferencia Materiales</th>
+            <th>Tecnologías Típicas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>LF (Baja Frecuencia)</strong></td>
+            <td>125 kHz - 134.2 kHz</td>
+            <td>Inductivo Puro (H)</td>
+            <td>Excelente penetración en agua y cuerpo humano. Inmune a líquidos.</td>
+            <td>EM4100/4200, HID Prox II, Indala, Keri, Tiris (identificación animal).</td>
+          </tr>
+          <tr>
+            <td><strong>HF (Alta Frecuencia)</strong></td>
+            <td>13.56 MHz (Banda ISM)</td>
+            <td>Inductivo Resonante</td>
+            <td>Afectada moderadamente por metales adyacentes (requiere blindaje ferrítico).</td>
+            <td>MIFARE (Classic, Plus, DESFire), NFC (NTAG), HID iCLASS, Calypso, FeliCa.</td>
+          </tr>
+          <tr>
+            <td><strong>UHF (Ultra Alta Frecuencia)</strong></td>
+            <td>860 MHz - 960 MHz</td>
+            <td>Radiativo (Campo Lejano)</td>
+            <td>Muy sensible a agua (absorbida) y metales (reflejo total).</td>
+            <td>EPC Gen2, ISO 18000-6C, peajes de autopista (Telepeaje/TAG), logística.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- LAB 1.1 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 1.1: Triage e Inspección Física a Contraluz y Bobinas LED</div>
+          <span class="badge badge-amber">Práctica Física</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Determinar la tecnología de un lote de credenciales ciegas (sin serigrafía) usando únicamente una linterna potente de smartphone y una bobina detectora pasiva con LED bicolor.</p>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Inspección a Contraluz (Transiluminación):</strong>
+            <p>Coloca la linterna del teléfono directamente pegada a la parte posterior de la tarjeta plástica en una habitación a oscuras. Observa la periferia:</p>
+            <ul>
+              <li><strong>LF (125 kHz):</strong> Verás una bobina cilíndrica gruesa con <em>centenares de vueltas de hilo de cobre muy fino</em> (bobinado denso y compacto, típicamente en una esquina o centro en llaveros).</li>
+              <li><strong>HF (13.56 MHz):</strong> Verás <em>3 a 5 espiras gruesas y separadas</em> que recorren todo el borde exterior de la tarjeta en forma rectangular, conectadas a un chip milimétrico diminuto mediante pistas de soldadura.</li>
+              <li><strong>Dual (Híbrida LF+HF):</strong> Verás ambas antenas presentes simultáneamente (muy común en credenciales corporativas en procesos de migración).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Detección de Campo en Lectores Murales con Bobina LED:</strong>
+            <p>Aproxima la bobina detectora al lector mural de la pared (sin tocar):</p>
+            <ul>
+              <li>Si se ilumina el <strong>LED Rojo (LF 125 kHz)</strong>: El lector genera un campo continuo de baja frecuencia.</li>
+              <li>Si se ilumina el <strong>LED Verde (HF 13.56 MHz)</strong>: El lector opera en 13.56 MHz.</li>
+              <li>Si ambos parpadean alternativamente: El lector es multi-frecuencia (ej. HID multiCLASS).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Clasificación inequívoca de tarjetas en LF vs HF antes de usar cualquier lector digital.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 2 -->
+    <section id="tema2">
+      <h2>2. Estándares y Tramas: ISO 14443-A/B vs ISO 15693</h2>
+      <p>En el rango de 13.56 MHz conviven dos familias de estándares principales:</p>
+      <ul>
+        <li><strong>ISO/IEC 14443 (Proximity Cards):</strong> Alcance nominal hasta 10 cm. Subdividido en <em>Tipo A</em> (modulación 100% ASK, codificación Miller modificada lector-a-tarjeta y Manchester tarjeta-a-lector) y <em>Tipo B</em> (modulación 10% ASK con codificación NRZ). Es el estándar rey del control de accesos.</li>
+        <li><strong>ISO/IEC 15693 (Vicinity Cards):</strong> Tarjetas de vecindad con alcance ampliado hasta 1 metro (usado comúnmente en bibliotecas, esquí y seguimiento de activos como ICODE de NXP).</li>
+      </ul>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Comprender la diferencia entre ISO 14443 Tipo A y Tipo B.</li>
+            <li>Analizar el proceso de anticolisión y obtención del UID/CSN (Card Serial Number).</li>
+            <li>Entender por qué el UID por sí solo NO es una medida de seguridad criptográfica.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">ATQA (Answer To Request)</span>
+            <span class="badge badge-cyan">SAK (Select Acknowledge)</span>
+            <span class="badge badge-cyan">UID Cascade Levels</span>
+            <span class="badge badge-cyan">Baud rate (106 kbps)</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-amber">Lector USB ACR122U</span>
+            <span class="badge badge-amber">Smartphone Android (NFC TagInfo)</span>
+            <span class="badge badge-amber">Proxmark3 CLI</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>2.1 Cascada de Anticolición y Longitudes de UID</h3>
+      <p>Cuando varias tarjetas entran simultáneamente en el campo del lector, se ejecuta un algoritmo de árbol binario de anticolición. El UID (<em>Unique Identifier</em>) identifica la tarjeta a nivel de silicio:</p>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        CASCADA DE ANTICOLICIÓN ISO 14443-A                             │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   Nivel Cascade 1 (CL1):                                                               │
+│   Lector emite: ANTICOLLISION CL1 (0x93 0x20)                                          │
+│   Si el UID es de 4 Bytes (Single Size):                                               │
+│   Respuesta: [ UID0 ] [ UID1 ] [ UID2 ] [ UID3 ] [ BCC ]                               │
+│   BCC = Byte Check Character (XOR de los 4 bytes de UID).                              │
+│                                                                                        │
+│   Si el UID es de 7 Bytes (Double Size):                                               │
+│   Respuesta CL1: [ 0x88 (CT) ] [ UID0 ] [ UID1 ] [ UID2 ] [ BCC ]                     │
+│   (0x88 es el Cascade Tag CT, que indica que hay más bytes pendientes).               │
+│   Lector emite: ANTICOLLISION CL2 (0x95 0x20)                                          │
+│   Respuesta CL2: [ UID3 ] [ UID4 ] [ UID5 ] [ UID6 ] [ BCC ]                           │
+│                                                                                        │
+│   Si el UID es de 10 Bytes (Triple Size):                                              │
+│   Se ejecuta CL1 (con CT 0x88) -&gt; CL2 (con CT 0x88) -&gt; CL3 (0x97 0x20).                │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <h3>2.2 Decodificación de ATQA (Answer To Request A) y SAK (Select Acknowledge)</h3>
+      <p>Al iniciar la comunicación con un comando <code>REQA (0x26)</code> o <code>WUPA (0x52)</code>, la tarjeta responde con 2 bytes de <strong>ATQA</strong>. Tras completar la selección de anticolición con <code>SELECT (0x93 0x70 ...)</code>, la tarjeta entrega 1 byte de <strong>SAK</strong>. Estos dos parámetros revelan la arquitectura exacta del silicio:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ATQA (2 Bytes Hex)</th>
+            <th>SAK (1 Byte Hex)</th>
+            <th>Longitud UID</th>
+            <th>Modelo de Silicio y Familia</th>
+            <th>Nivel de Seguridad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>00 04</code></td>
+            <td><code>08</code></td>
+            <td>4 Bytes</td>
+            <td>NXP MIFARE Classic 1K (o clon chino Gen1a/Gen2)</td>
+            <td><span class="badge badge-amber">CRÍTICO: Roto (Crypto-1)</span></td>
+          </tr>
+          <tr>
+            <td><code>00 02</code></td>
+            <td><code>18</code></td>
+            <td>4 Bytes</td>
+            <td>NXP MIFARE Classic 4K</td>
+            <td><span class="badge badge-amber">CRÍTICO: Roto (Crypto-1)</span></td>
+          </tr>
+          <tr>
+            <td><code>00 44</code></td>
+            <td><code>00</code></td>
+            <td>7 Bytes</td>
+            <td>MIFARE Ultralight / NTAG213 / NTAG215 / NTAG216</td>
+            <td><span class="badge badge-cyan">Sin Cifrado (OTP Locks)</span></td>
+          </tr>
+          <tr>
+            <td><code>03 44</code></td>
+            <td><code>20</code></td>
+            <td>7 Bytes</td>
+            <td>MIFARE DESFire EV1 / EV2 / EV3 (ISO 14443-4 T=CL)</td>
+            <td><span class="badge badge-primary">SEGURO: Cifrado AES-128</span></td>
+          </tr>
+          <tr>
+            <td><code>00 04</code></td>
+            <td><code>28</code></td>
+            <td>4 Bytes</td>
+            <td>JCOP (Java Card Open Platform)</td>
+            <td><span class="badge badge-primary">SEGURO: Tarjeta Inteligente</span></td>
+          </tr>
+          <tr>
+            <td><code>00 08</code></td>
+            <td><code>20</code></td>
+            <td>4 Bytes</td>
+            <td>MIFARE Plus en Nivel de Seguridad SL3</td>
+            <td><span class="badge badge-primary">SEGURO: AES-128</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- LAB 1.2 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 1.2: Extracción e Interpretación de Tramas Crudas con ACR122U / Smartphone</div>
+          <span class="badge badge-cyan">Análisis de Silicio</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Obtener las tramas crudas ATQA, SAK y UID de una tarjeta desconocida usando terminal Linux con el lector USB ACR122U (o la app NXP TagInfo en Android).</p>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Instalación y Verificación de Herramientas PCSC en Linux:</strong>
+            <pre><code># Instalar paquetes de comunicación con lectores de tarjetas
+sudo apt update &amp;&amp; sudo apt install -y pcscd pcsc-tools libnfc-bin
+
+# Iniciar el daemon del servicio PC/SC
+sudo systemctl enable --now pcscd
+
+# Detener drivers conflictivos del kernel para ACR122U
+sudo modprobe -r pn533_usb pn533 nfc</code></pre>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Extracción de Tramas con pcsc_scan y nfc-poll:</strong>
+            <pre><code># Ejecutar nfc-poll para capturar el handshake crudo
+nfc-poll
+
+# Salida obtenida:
+ISO/IEC 14443A (106 kbps) target:
+    ATQA (SENS_RES): 00  04
+       UID (NFCID1): a4  12  9f  5c
+      SAK (SEL_RES): 08</code></pre>
+            <p><strong>Diagnóstico Forense:</strong> ATQA <code>00 04</code> y SAK <code>08</code> con UID de 4 bytes confirman fehacientemente que la credencial es una <strong>MIFARE Classic 1K</strong> vulnerable a ataques criptográficos de recuperación de claves (Módulo 4).</p>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Identificación de ATQA: <code>00 04</code>, SAK: <code>08</code> (indicador clásico de MIFARE Classic 1K de 4 bytes de UID).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 3 -->
+    <section id="tema3">
+      <h2>3. NFC en Profundidad y Registros NDEF</h2>
+      <p>NFC (<em>Near Field Communication</em>) es una extensión directa de HF 13.56 MHz estandarizada por el <em>NFC Forum</em>. Soporta 3 modos de operación fundamentales:</p>
+      <ul>
+        <li><strong>Reader/Writer Mode:</strong> El dispositivo lee o escribe etiquetas pasivas (NTAG, MIFARE, ISO 15693).</li>
+        <li><strong>Peer-to-Peer Mode (P2P):</strong> Dos dispositivos activos intercambian datos bidireccionalmente (protocolo SNEP/LLCP).</li>
+        <li><strong>Host Card Emulation (HCE):</strong> El dispositivo (smartphone Android) emula una tarjeta inteligente por software sin requerir un Secure Element físico de la operadora móvil.</li>
+      </ul>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Crear y analizar registros NDEF (URLs, vCards, Textos, MIME types).</li>
+            <li>Identificar vectores de ataque por inyección NDEF (URI schemes maliciosos, WiFi autopairing forzado).</li>
+            <li>Conocer las limitaciones de Host Card Emulation (HCE) en Android frente a chips seguros.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-amber">NDEF Record Header</span>
+            <span class="badge badge-amber">TLV (Tag Length Value)</span>
+            <span class="badge badge-amber">HCE (Host-based Card Emulation)</span>
+            <span class="badge badge-amber">Secure Element (SE)</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">NFC Tools App</span>
+            <span class="badge badge-cyan">NFC TagWriter</span>
+            <span class="badge badge-cyan">Etiquetas NTAG213/NTAG215</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>3.1 Anatomía de los Mensajes NDEF (NFC Data Exchange Format)</h3>
+      <p>Un mensaje NDEF está compuesto por uno o más <strong>NDEF Records</strong>. Cada registro posee un encabezado de control de 1 byte con banderas de control críticas:</p>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        ESTRUCTURA DE UN NDEF RECORD HEADER                             │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   Bit 7   Bit 6   Bit 5   Bit 4   Bit 3   Bit 2   Bit 1   Bit 0                        │
+│  ┌──────┬───────┬───────┬───────┬───────┬───────────────────────┐                      │
+│  │  MB  │  ME   │  CF   │  SR   │  IL   │          TNF          │                      │
+│  └──────┴───────┴───────┴───────┴───────┴───────────────────────┘                      │
+│                                                                                        │
+│   * MB (Message Begin): 1 si es el primer registro del mensaje.                        │
+│   * ME (Message End):   1 si es el último registro del mensaje.                        │
+│   * CF (Chunk Flag):    1 si el payload está fragmentado en varios chunks.             │
+│   * SR (Short Record):  1 si Payload Length es de 1 byte (&lt;= 255 bytes).               │
+│   * IL (ID Length):     1 si se incluye el campo ID Length y el campo ID.              │
+│   * TNF (Type Name Format - 3 bits):                                                   │
+│       - 0x01: Well-Known Type (RTD del NFC Forum: URI 'U', Text 'T', SmartPoster 'Sp') │
+│       - 0x02: Media-type (MIME Type: application/json, text/vcard)                     │
+│       - 0x04: External Type (ej. android.com:pkg para lanzar aplicaciones)             │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <!-- LAB 1.3 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 1.3: Inyección de Payloads NDEF Maliciosos (Redirección y WiFi Evil Twin)</div>
+          <span class="badge badge-amber">Vector de Ataque NFC</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Programar una etiqueta NTAG213/215 con un payload NDEF malicioso que fuerce al smartphone de la víctima a conectarse sin consentimiento a un punto de acceso WiFi malicioso (Evil Twin) o abrir una URL maliciosa.</p>
+
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Payload 1: Redirección Forzada a Captive Portal (SmartPoster URI):</strong>
+            <p>Usando la herramienta <code>nfc-tools</code> o la app <strong>NFC Tools</strong>:</p>
+            <ul>
+              <li>Selecciona tipo de registro: <strong>URI / URL</strong>.</li>
+              <li>Prefijo de protocolo: <code>0x04 (https://)</code>.</li>
+              <li>Inserta el enlace al portal de credential harvesting: <code>https://portal-wifi-autenticacion.local/login</code>.</li>
+              <li>Escribe en la tarjeta y activa la opción de <strong>Protección contra escritura (Lock Permanent)</strong> para que la víctima no pueda borrar el tag.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Payload 2: Conexión Involuntaria a Red WiFi Gemela (MIME Handshake):</strong>
+            <p>NFC Forum define el tipo MIME oficial <code>application/vnd.wfa.wsc</code> (WiFi Simple Configuration). Cuando un teléfono Android toca este tag:</p>
+            <pre><code># Estructura del Payload WiFi WSC:
+Tipo: application/vnd.wfa.wsc
+Network SSID: "Corp_Guest_Secure"
+Authentication Type: WPA2-Personal (0x0020)
+Encryption Type: AES (0x0008)
+Network Key: "WiFiGratisSegura2026"</code></pre>
+            <p>Al pasar el dispositivo a menos de 4 cm, el sistema operativo procesa el broadcast NDEF y presenta un diálogo de conexión inmediata. Al aceptar, el tráfico del atacante es interceptado a través del punto de acceso rogue (mitmproxy/Bettercap).</p>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Ejecución automática de la solicitud de conexión al acercar el teléfono a la etiqueta programada.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>RFID & NFC Pentesting Master Course • Documento Técnico Oficial Autocontenido • Módulo 1</p>
+      <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #64748b;">Diseñado para ejecución local sin dependencias externas. Compatible con exportación a PDF para archivado técnico.</p>
+    </footer>
+  </div>
+  <div class="ga-footer">
+    <div class="ga-footer-nav">
+      <a href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">Ghost Academy</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">Un Fantasma en el Sistema</a>
+      <a href="../">Volver al Curso RFID &amp; NFC</a>
+    </div>
+    <p>&copy; Un Fantasma en el Sistema &middot; Ghost Academy &mdash; Contenido educativo para auditorías autorizadas.</p>
+  </div>
+</body>
+</html>
