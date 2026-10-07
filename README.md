@@ -1,5 +1,6 @@
 # Curso RFID & NFC · Temario y Laboratorio Virtual
 
+[![Licencia](https://img.shields.io/badge/Licencia-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg?logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.0-61dafb.svg?logo=react)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38bdf8.svg?logo=tailwindcss)](https://tailwindcss.com/)
@@ -7,6 +8,12 @@
 [![Comunidad](https://img.shields.io/badge/Desarrollado_por-unfantasmaenelsistema.com-06b6d4.svg)](https://www.unfantasmaenelsistema.com/)
 
 > **Curso RFID & NFC** es el temario completo y el laboratorio virtual de un curso práctico de ciberseguridad física en radiofrecuencia: 6 módulos, 41 horas lectivas y 18 laboratorios guiados, con más de una decena de simuladores interactivos (CRC, paridad, osciloscopio de modulación, terminal Proxmark3 simulado, calculadora CVSS, etc.) para practicar sin necesidad de hardware. Desarrollado por [unfantasmaenelsistema.com](https://www.unfantasmaenelsistema.com/).
+
+### 🌐 [Demo en vivo: unfantasmaenelsistema.github.io/Curso-RFID-NFC](https://unfantasmaenelsistema.github.io/Curso-RFID-NFC/)
+
+Incluye también la [teoría completa de los 6 módulos](https://unfantasmaenelsistema.github.io/Curso-RFID-NFC/teoria/modulo-1-fundamentos-rf.html) en HTML, con cabecera/pie de Ghost Academy, enlazada en ambos sentidos con la app interactiva.
+
+Herramienta hermana: **[Proxmark3 Web Studio](https://unfantasmaenelsistema.github.io/GhostProxmark3Studio/)** — la interfaz web (independiente de este curso) para auditar con tu Proxmark3 real una vez hayas practicado aquí en modo simulación.
 
 No requiere backend ni clave de API: es una SPA 100% cliente que se compila a estáticos con Vite.
 
@@ -79,6 +86,9 @@ Formatos de impartición (online, intensivo, formación reglada) y generación d
 ### 📤 11. Exportador de Temario (`SyllabusExportModal`)
 Descarga la guía docente completa en Markdown o JSON estructurado.
 
+### 📄 12. Teoría en HTML (`public/teoria/`)
+Los 6 módulos del temario también existen como páginas HTML autocontenidas (sin dependencias, un archivo por módulo) con cabecera y pie de Ghost Academy —logo, navegación anterior/siguiente entre módulos y enlaces a [ghostacademy.unfantasmaenelsistema.com](https://www.ghostacademy.unfantasmaenelsistema.com) y [unfantasmaenelsistema.com](https://www.unfantasmaenelsistema.com)—. Cada módulo de la app enlaza a su página de teoría ("Leer Teoría Completa del Módulo") y cada página de teoría enlaza de vuelta al temario interactivo.
+
 ---
 
 ## 🚀 Instalación y Desarrollo Local
@@ -105,7 +115,16 @@ Abre tu navegador en `http://localhost:3000`.
 ```bash
 npm run build
 ```
-Genera una SPA 100% estática en `dist/` (sin backend ni variables de entorno necesarias) lista para desplegar en cualquier hosting estático.
+Genera una SPA 100% estática en `dist/` (sin backend ni variables de entorno necesarias) lista para desplegar en cualquier hosting estático. `vite.config.ts` fija `base: '/Curso-RFID-NFC/'` para el despliegue como GitHub Pages de proyecto (`usuario.github.io/Curso-RFID-NFC/`); si lo despliegas en otra ruta o dominio propio, ajusta ese `base` antes de compilar.
+
+### 5. Desplegar en GitHub Pages
+El sitio en vivo se publica desde la rama `gh-pages` (contenido de `dist/`, build manual — no hay GitHub Actions configurado):
+```bash
+npm run build
+git worktree add /tmp/ghpages-deploy gh-pages   # o --orphan la primera vez
+cp -r dist/. /tmp/ghpages-deploy/
+cd /tmp/ghpages-deploy && git add -A && git commit -m "Deploy" && git push origin gh-pages
+```
 
 ---
 
@@ -127,7 +146,20 @@ Genera una SPA 100% estática en `dist/` (sin backend ni variables de entorno ne
 │   ├── App.tsx
 │   └── main.tsx
 ├── public/
-│   └── screenshots/
+│   ├── screenshots/
+│   └── teoria/             # 6 módulos en HTML autocontenido + logo de Ghost Academy
 ├── index.html
 └── vite.config.ts
 ```
+
+---
+
+## 📄 Licencia
+
+Distribuido bajo licencia [MIT](LICENSE).
+
+---
+
+## ⚖️ Aviso Legal & Uso Ético
+
+Este material ha sido desarrollado con fines **estrictamente educativos, de investigación y de auditoría de seguridad física autorizada** (Hacking Ético / Red Teaming). El autor y [unfantasmaenelsistema.com](https://www.unfantasmaenelsistema.com/) no se hacen responsables del uso indebido o ilegal de los conocimientos y funcionalidades aquí provistos. Utiliza este contenido únicamente sobre sistemas, tarjetas y credenciales sobre las que tengas autorización explícita por escrito.
