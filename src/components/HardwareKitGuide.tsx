@@ -28,6 +28,27 @@ export const HardwareKitGuide: React.FC = () => {
         </div>
       </div>
 
+      {/* GhostProxmark3Studio cross-link */}
+      <a
+        href="https://unfantasmaenelsistema.github.io/GhostProxmark3Studio/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-slate-900 to-slate-900 border border-amber-500/30 hover:border-amber-500/60 transition-colors group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+            <Cpu className="w-5 h-5 text-amber-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-white">¿Ya tienes el hardware? Úsalo desde el navegador</h3>
+            <p className="text-xs text-slate-400 mt-0.5">Proxmark3 Web Studio es la interfaz real (Web Serial API) para auditar con tu Proxmark3 físico — herramienta independiente de este curso.</p>
+          </div>
+        </div>
+        <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-400 group-hover:text-amber-300 shrink-0">
+          Abrir Proxmark3 Web Studio <ExternalLink className="w-3.5 h-3.5" />
+        </span>
+      </a>
+
       {/* Sub-tab Switcher: Purchasing Kits vs Interactive PCB Diagram */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 p-2 rounded-2xl border border-slate-800">
         <div className="flex items-center gap-2">

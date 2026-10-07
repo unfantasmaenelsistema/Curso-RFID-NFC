@@ -107,6 +107,18 @@ export default function App() {
                   <Download className="w-4 h-4" />
                   <span>Descargar Guía en Markdown</span>
                 </button>
+                <a
+                  href="https://unfantasmaenelsistema.github.io/GhostProxmark3Studio/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-md"
+                >
+                  <Cpu className="w-4 h-4" />
+                  <span>Abrir Proxmark3 Web Studio</span>
+                </a>
+                <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+                  Herramienta independiente para auditar tu Proxmark3 real desde el navegador.
+                </p>
               </div>
             </div>
           </div>
