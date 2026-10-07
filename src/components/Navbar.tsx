@@ -19,7 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
               <Radio className="w-5 h-5 text-white animate-pulse" />
             </div>
@@ -37,10 +37,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Navigation Tabs */}
-          <nav className="hidden md:flex items-center space-x-1 font-medium text-xs">
+          <nav className="hidden md:flex items-center space-x-1 font-medium text-xs min-w-0 overflow-x-auto">
             <button
               onClick={() => setActiveTab('temario')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'temario'
                   ? 'bg-slate-800 text-cyan-400 font-bold border border-slate-700'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -52,7 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('glosario')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'glosario'
                   ? 'bg-slate-800 text-cyan-400 font-bold border border-slate-700'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('espectro')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'espectro'
                   ? 'bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-indigo-300 hover:bg-slate-900'
@@ -76,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('senales')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'senales'
                   ? 'bg-indigo-500/20 text-indigo-300 font-bold border border-indigo-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-indigo-300 hover:bg-slate-900'
@@ -88,7 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('tramas')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'tramas'
                   ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-emerald-300 hover:bg-slate-900'
@@ -100,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('paridad')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'paridad'
                   ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-cyan-300 hover:bg-slate-900'
@@ -112,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('diccionarios')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'diccionarios'
                   ? 'bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-amber-300 hover:bg-slate-900'
@@ -124,7 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('riesgo')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'riesgo'
                   ? 'bg-orange-500/20 text-orange-300 font-bold border border-orange-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-orange-300 hover:bg-slate-900'
@@ -136,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('simulador')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'simulador'
                   ? 'bg-slate-800 text-cyan-400 font-bold border border-slate-700'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -148,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('matriz')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'matriz'
                   ? 'bg-slate-800 text-cyan-400 font-bold border border-slate-700'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -160,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('hardware')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'hardware'
                   ? 'bg-slate-800 text-cyan-400 font-bold border border-slate-700'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -172,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('planificador')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'planificador'
                   ? 'bg-slate-800 text-cyan-400 font-bold border border-slate-700'
                   : 'text-slate-400 hover:text-white hover:bg-slate-900'
@@ -184,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => setActiveTab('certificacion')}
-              className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
+              className={`shrink-0 px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors ${
                 activeTab === 'certificacion'
                   ? 'bg-amber-500/10 text-amber-300 font-bold border border-amber-500/30'
                   : 'text-slate-400 hover:text-amber-300 hover:bg-slate-900'
@@ -196,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Action Button: Export */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={onOpenExport}
               className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-cyan-600/20 transition-all hover:scale-[1.02]"
