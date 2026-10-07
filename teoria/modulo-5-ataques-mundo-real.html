@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 5: Ataques del Mundo Real, Hoteles y Relay Attacks | RFID Pentesting Master Course</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --red: #dc2626;
+      --code-bg: #030712;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem 1.5rem;
+    }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-primary { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-red { background: rgba(220, 38, 38, 0.15); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); }
+    h1 {
+      font-size: 2.5rem;
+      line-height: 1.2;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 800px;
+    }
+    .objective-box {
+      background: linear-gradient(to right, rgba(220, 38, 38, 0.08), rgba(245, 158, 11, 0.04));
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      border-left: 4px solid var(--red);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 2rem 0;
+    }
+    .objective-box strong { color: #f87171; font-size: 1.05rem; }
+    .toc {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .toc h3 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
+    .toc ol { padding-left: 1.5rem; }
+    .toc li { margin-bottom: 0.5rem; }
+    .toc a { color: var(--cyan); text-decoration: none; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; color: #38bdf8; }
+    section { margin-bottom: 4rem; }
+    h2 {
+      font-size: 1.85rem;
+      color: #f8fafc;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    h3 { font-size: 1.35rem; color: #38bdf8; margin: 2rem 0 1rem 0; }
+    h4 { font-size: 1.1rem; color: #fbbf24; margin: 1.5rem 0 0.5rem 0; }
+    p { margin-bottom: 1.2rem; }
+    ul, ol { margin-bottom: 1.2rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: #f8fafc; }
+    .callout {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.6rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .callout-info { border-left: 4px solid var(--cyan); }
+    .callout-warn { border-left: 4px solid var(--amber); background: rgba(245, 158, 11, 0.05); }
+    .callout-danger { border-left: 4px solid var(--rose); background: rgba(244, 63, 94, 0.05); }
+    .callout-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .callout-info .callout-title { color: #38bdf8; }
+    .callout-warn .callout-title { color: #fbbf24; }
+    .callout-danger .callout-title { color: #fb7185; }
+    .callout-success { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.05); }
+    .callout-success .callout-title { color: #34d399; }
+    .lesson-meta {
+      background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(6,182,212,0.03));
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 0.75rem;
+      padding: 1.5rem 1.75rem;
+      margin: 1.75rem 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 2rem;
+    }
+    .lesson-meta h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #34d399;
+      margin: 0 0 0.6rem 0;
+    }
+    .lesson-meta ul { margin-bottom: 0; }
+    .lesson-meta ul li { margin-bottom: 0.3rem; font-size: 0.92rem; }
+    .lesson-meta .badge-bar { margin-bottom: 0; }
+    .lesson-meta .badge-bar + h4 { margin-top: 1rem; }
+    @media (max-width: 640px) {
+      .lesson-meta { grid-template-columns: 1fr; }
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin: 1.2rem 0;
+    }
+    code {
+      font-family: var(--font-mono);
+      background: rgba(148, 163, 184, 0.15);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.88em;
+    }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    .diagram-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 1.75rem 0;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .lab-box {
+      background: #0b1329;
+      border: 2px solid #2563eb;
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      margin: 2.5rem 0;
+    }
+    .lab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e3a8a;
+      padding-bottom: 0.75rem;
+    }
+    .lab-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-item { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #1e3a8a;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .step-content { flex: 1; }
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .container { max-width: 100%; padding: 0; }
+      pre, .diagram-box, .lab-box { border-color: #ccc; background: #f8fafc; color: #111; }
+      h1, h2, h3, strong { color: #000; -webkit-text-fill-color: initial; }
+    }
+
+  /* ===== Ghost Academy branded chrome ===== */
+  .ga-topbar {
+    background: #05070d;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .ga-topbar .ga-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .ga-topbar .ga-brand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(16,185,129,0.35));
+    transition: transform 0.25s;
+    border-radius: 8px;
+  }
+  .ga-topbar .ga-brand:hover img { transform: rotate(-8deg) scale(1.08); }
+  .ga-topbar .ga-brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .ga-topbar .ga-brand-text small { font-size: 0.62rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+  .ga-topbar .ga-brand-text strong { font-size: 0.82rem; color: var(--cyan); letter-spacing: 0.02em; }
+  .ga-topbar nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem; flex-wrap: wrap; }
+  .ga-topbar nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; white-space: nowrap; }
+  .ga-topbar nav a:hover { color: var(--cyan); }
+  .ga-footer {
+    border-top: 1px solid var(--card-border);
+    background: #05070d;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .ga-footer a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .ga-footer a:hover { text-decoration: underline; }
+  .ga-footer-nav { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) {
+    .ga-topbar { justify-content: center; text-align: center; }
+  }
+  </style>
+<script src="/_aistudio-iframe.js?v=2c34bde1"></script></head>
+<body>
+<div class="ga-topbar">
+    <a class="ga-brand" href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">
+      <img src="ghost-academy-logo.png" alt="Un Fantasma en el Sistema" />
+      <span class="ga-brand-text"><small>Ghost Academy</small><strong>SecLearn // RFID &amp; NFC Pentesting</strong></span>
+    </a>
+    <nav>
+      <a href="../">&#8962; Índice del Curso</a>
+      <a href="modulo-4-alta-frecuencia-mifare.html">&larr; Módulo 4</a>
+      <a href="modulo-6-defensa-hardening-legal.html">Módulo 6 &rarr;</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">unfantasmaenelsistema.com</a>
+    </nav>
+  </div>
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge badge-primary">Módulo 5</span>
+        <span class="badge badge-cyan">Duración: 8 Horas</span>
+        <span class="badge badge-amber">90% Práctica Técnica</span>
+        <span class="badge badge-red">Red Team Avanzado</span>
+      </div>
+      <h1>Ataques del Mundo Real, Hoteles y Relay Attacks</h1>
+      <p class="subtitle">Auditoría de saldos y máquinas vending (Hex Diffing), el caso Unsaflok en cerraduras hoteleras (Dormakaba Saflok) y Relay Attacks transcontinentales con NFCGate sobre TCP/IP.</p>
+
+      <div class="objective-box">
+        <strong>🎯 Objetivo Operativo del Módulo:</strong>
+        <p style="margin: 0.4rem 0 0 0;">Ejecutar vectores de ataque de alto impacto en infraestructuras físicas reales: revertir y recargar saldos offline mediante ingeniería inversa de volcados, comprender la derivación de llaves maestras en cerraduras electromecánicas sin conexión, y puentear credenciales a kilómetros de distancia mediante Relay Attacks.</p>
+      </div>
+    </header>
+
+    <div class="toc">
+      <h3>📑 Índice de Contenidos del Módulo</h3>
+      <ol>
+        <li><a href="#tema1">Manipulación de Saldos y Transacciones Offline</a>
+          <ul>
+            <li>Metodología de 4 pasos: Dump A → Consumo → Dump B → Hex Diffing</li>
+            <li>Sumas de verificación (Checksums CRC16/XOR) y contadores anti-replay</li>
+            <li><strong>Lab 5.1:</strong> Localización de bloques de saldo con vbindiff y recarga manual</li>
+          </ul>
+        </li>
+        <li><a href="#tema2">Estudio de Caso: Vulnerabilidad Unsaflok en Cerraduras de Hotel</a>
+          <ul>
+            <li>Cerraduras Saflok (Dormakaba) y el problema del funcionamiento offline</li>
+            <li>KDF débil basada en el UID de la tarjeta y generación de llaves maestras</li>
+            <li><strong>Lab 5.2:</strong> Simulación de forja de llaves maestras a partir de dos tarjetas caducadas</li>
+          </ul>
+        </li>
+        <li><a href="#tema3">Relay Attacks a Larga Distancia con NFCGate</a>
+          <ul>
+            <li>Principio Man-in-the-Middle de extensión del campo magnético sobre TCP/IP</li>
+            <li>Ventanas de timeout ISO 14443 Frame Waiting Time (FWT)</li>
+            <li><strong>Lab 5.3:</strong> Despliegue de PoC con dos terminales Android y servidor de relevo</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <!-- TEMA 1 -->
+    <section id="tema1">
+      <h2>1. Manipulación de Saldos y Transacciones Offline</h2>
+      <p>Miles de lavanderías comunitarias, máquinas de café y taquillas de gimnasio funcionan de forma <strong>completamente offline</strong> (sin conexión a internet ni a base de datos central). Toda la lógica de negocio y el saldo monetario residen en la tarjeta MIFARE.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Metodología de auditoría de estado: Dump inicial -&gt; Consumir servicio -&gt; Dump final -&gt; Hex Diffing.</li>
+            <li>Identificar checksums propios, XORs y contadores de recarga.</li>
+            <li>Entender el peligro de clonar saldos y los controles de reconciliación en backoffice.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">Hex diffing</span>
+            <span class="badge badge-primary">Little Endian vs Big Endian</span>
+            <span class="badge badge-primary">Two-complement Value Block</span>
+            <span class="badge badge-primary">Replay de transacciones offline</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Vbindiff / ImHex</span>
+            <span class="badge badge-cyan">MCT Android</span>
+            <span class="badge badge-cyan">Proxmark3</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>1.1 Metodología de Hex Diffing</h3>
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        METODOLOGÍA DE REVERSIÓN DE SALDOS OFFLINE                      │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   PASO 1: Dump Inicial (Snapshot A)                                                    │
+│   Saldo real conocido: 10.00 € (1000 céntimos = 0x03E8).                               │
+│   Guardar: dump_A.bin                                                                  │
+│                                                                                        │
+│   PASO 2: Transacción Física Controlada                                                │
+│   Consumo de un café de 1.50 €. Nuevo saldo: 8.50 € (850 céntimos = 0x0352).           │
+│                                                                                        │
+│   PASO 3: Dump Posterior (Snapshot B)                                                  │
+│   Guardar: dump_B.bin                                                                  │
+│                                                                                        │
+│   PASO 4: Diffing Binario (vbindiff dump_A.bin dump_B.bin)                             │
+│   Localizar los únicos bytes que han variado. Encontraremos:                          │
+│   - El valor del saldo (en formato Value Block o entero custom).                       │
+│   - Un contador de transacciones (incrementado en +1 para evitar rollbacks).           │
+│   - Un checksum (CRC16 o XOR) que valida la integridad de los datos.                   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <!-- LAB 5.1 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 5.1: Localización y Modificación de Saldo con vbindiff</div>
+          <span class="badge badge-primary">Ingeniería Inversa Hex</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <pre><code># Instalar vbindiff si no está en el sistema
+sudo apt install -y vbindiff
+
+# Comparar los dos volcados en paralelo
+vbindiff dump_A.bin dump_B.bin</code></pre>
+            <p>Se observa que en el <strong>Sector 2, Bloque 8</strong>:</p>
+            <pre><code>dump_A.bin (10.00€): E8 03 00 00 17 FC FF FF E8 03 00 00 08 F7 08 F7
+dump_B.bin ( 8.50€): 52 03 00 00 AD FC FF FF 52 03 00 00 08 F7 08 F7</code></pre>
+            <p>¡Es un Value Block canónico! Para modificar el saldo a 50.00 € (5000 céntimos = <code>0x1388</code>):</p>
+            <ul>
+              <li>Valor <code>v</code> = <code>88 13 00 00</code></li>
+              <li>Valor invertido <code>~v</code> = <code>77 EC FF FF</code></li>
+              <li>Bloque resultante: <code>88 13 00 00 77 EC FF FF 88 13 00 00 08 F7 08 F7</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Identificación de la estructura de bloque de valor y reversión del saldo en entorno controlado.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 2 -->
+    <section id="tema2">
+      <h2>2. Estudio de Caso: Vulnerabilidad Unsaflok en Cerraduras de Hotel</h2>
+      <p>A principios de 2024, los investigadores Ian Carroll y Lennert Wouters publicaron la investigación <strong>Unsaflok</strong>, que demostró que más de <strong>3 millones de cerraduras hoteleras Saflok</strong> (Dormakaba) en 131 países podían abrirse en cuestión de segundos debido a debilidades criptográficas en la derivación de claves sobre tarjetas MIFARE Classic.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Analizar la arquitectura de las cerraduras de hotel electromecánicas offline.</li>
+            <li>Entender cómo se combinan la clave de hotel (Property Code) y la fecha de expiración.</li>
+            <li>Aprender las medidas de mitigación que la industria hotelera está desplegando.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-amber">KDF (Key Derivation Function)</span>
+            <span class="badge badge-amber">Master Key Generation</span>
+            <span class="badge badge-amber">Off-line audit logs en cerraduras</span>
+            <span class="badge badge-amber">Vulnerabilidad Unsaflok</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Proxmark3</span>
+            <span class="badge badge-cyan">Flipper Zero con subGHz y NFC</span>
+            <span class="badge badge-cyan">Tarjetas Gen2 CUID</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>2.1 El Funcionamiento Offline de las Cerraduras de Hotel</h3>
+      <p>Las cerraduras de las habitaciones no tienen cable de red ni WiFi por razones de consumo de batería. Para que una cerradura sepa si una tarjeta es válida para la habitación 304 entre el lunes y el miércoles, la tarjeta lleva cifrados la fecha, hora de expiración y el número de habitación.</p>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        EL FALLO CRIPTOGRÁFICO DE UNSAFLOK                              │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   1. La tarjeta utiliza MIFARE Classic (cifrado roto Crypto-1).                        │
+│   2. Las claves del sector no son aleatorias: se calculan mediante una KDF             │
+│      (Key Derivation Function) basada en el UID de la tarjeta y una clave maestra.     │
+│   3. El sistema Saflok emplea una secuencia de DOS tarjetas para reprogramar la cerradura:│
+│      - Tarjeta 1: Sobreescribe la máscara de habitación de la cerradura offline.       │
+│      - Tarjeta 2: Activa el pestillo y abre la puerta.                                 │
+│   4. Disponiendo de DOS tarjetas cualesquiera (incluso caducadas) de un mismo hotel,   │
+│      es posible derivar la clave del sistema y forjar una llave maestra que abra       │
+│      CUALQUIER habitación de esa propiedad.                                            │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <!-- LAB 5.2 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 5.2: Simulación de Generación de Llaves Maestras</div>
+          <span class="badge badge-red">Forense Unsaflok</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Analizar dos tarjetas caducadas de hotel, identificar la firma del fabricante Saflok y comprender el vector de derivación de claves maestras.</p>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <pre><code># Inspeccionar el sector 1 de una tarjeta Saflok con Proxmark3
+[usb] pm3 --&gt; hf mf rdbl --block 4 -k A0B1C2D3E4F5
+
+# Datos obtenidos del bloque de control del hotel:
+Block 04: 01 30 04 65 D8 21 00 00 00 00 00 00 00 00 A1 F2
+# 01 30 = Habitación 130
+# 04 65 = Timestamp de validez
+# A1 F2 = Checksum de control de cerradura</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Apertura de la cerradura de pruebas mediante credencial sintética generada.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 3 -->
+    <section id="tema3">
+      <h2>3. Relay Attacks a Larga Distancia con NFCGate</h2>
+      <p>Un <strong>Relay Attack</strong> no rompe el cifrado de la tarjeta: simplemente engaña a la física. El atacante extiende virtualmente el campo magnético de 10 cm a miles de kilómetros encapsulando los paquetes APDU sobre sockets TCP/IP a través de internet (4G/5G/WiFi).</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Entender el principio del ataque de intermediario (Man-in-the-Middle) en RF.</li>
+            <li>Montar un servidor NFCGate en la nube (relay server en Node.js/Python).</li>
+            <li>Medir la latencia de respuesta y comprender las defensas basadas en Distance Bounding.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Relay Attack</span>
+            <span class="badge badge-cyan">Distance Bounding Protocols</span>
+            <span class="badge badge-cyan">Time of Flight (ToF)</span>
+            <span class="badge badge-cyan">NFCGate architecture</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">2 Smartphones Android con Root / Xposed</span>
+            <span class="badge badge-primary">Servidor NFCGate</span>
+            <span class="badge badge-primary">Lector de control de accesos</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        ARQUITECTURA DE UN RELAY ATTACK CON NFCGATE                     │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   [ LECTOR DE LA PUERTA ]                               [ VÍCTIMA CON LA TARJETA ]     │
+│             │ (Campo HF 13.56 MHz)                                 │ (Campo HF)        │
+│   [ TELÉFONO A: EMULADOR HCE ]                          [ TELÉFONO B: READER MODE ]    │
+│             │                                                      │                   │
+│             └───────────&gt; [ SERVIDOR RELAY INTERNET ] &lt;─────────────┘                   │
+│                                 (Sockets TCP/IP)                                       │
+│                                                                                        │
+│   1. El teléfono A se acerca al lector de la puerta (emula ser la tarjeta).            │
+│   2. El lector envía el desafío criptográfico (ej. AUTH).                              │
+│   3. El teléfono A retransmite los bytes al servidor de internet vía 5G.               │
+│   4. El servidor envía los bytes al teléfono B situado junto al bolsillo de la víctima.│
+│   5. El teléfono B lee la tarjeta de la víctima y obtiene la respuesta criptográfica.  │
+│   6. La respuesta viaja de vuelta al teléfono A y la entrega al lector de la puerta.   │
+│   7. ¡LA PUERTA SE ABRE! La tarjeta original nunca estuvo físicamente en el edificio.   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <div class="callout callout-danger">
+        <div class="callout-title">⚠️ El Desafío de la Latencia (Frame Waiting Time - FWT)</div>
+        <p>El estándar ISO 14443-4 define un tiempo máximo que el lector esperará la respuesta de la tarjeta antes de cancelar la sesión por timeout (FWT, habitualmente entre 50 y 300 milisegundos). Para que un Relay Attack funcione sobre internet público, el ping de la red 4G/5G debe ser inferior al FWT configurado en el lector mural.</p>
+      </div>
+
+      <!-- LAB 5.3 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 5.3: Prueba de Concepto de Relay Attack con NFCGate</div>
+          <span class="badge badge-amber">Ataque MitM</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p><strong>Configuración del Servidor de Relay en Linux:</strong></p>
+            <pre><code># Clonar y compilar el servidor de retransmisión NFCGate en VPS con baja latencia
+git clone https://github.com/nfcgate/nfcgate.git
+cd nfcgate/server
+python3 server.py --port 5566</code></pre>
+            <p><strong>En los smartphones Android con root y módulo NFCGate:</strong></p>
+            <ul>
+              <li><strong>Dispositivo 1 (Attacker Torno):</strong> Modo <em>HCE Emulation</em> conectado a <code>vps_ip:5566</code> con Session ID <code>REDTEAM1</code>.</li>
+              <li><strong>Dispositivo 2 (Attacker Víctima):</strong> Modo <em>Tag Reader</em> conectado a <code>vps_ip:5566</code> con Session ID <code>REDTEAM1</code>.</li>
+              <li>Aproximar el Dispositivo 2 a la mochila de la víctima y el Dispositivo 1 al lector de acceso: la puerta se abre de inmediato.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">El lector valida el acceso a pesar de que la tarjeta física está en otra habitación.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>RFID & NFC Pentesting Master Course • Documento Técnico Oficial Autocontenido • Módulo 5</p>
+      <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #64748b;">Diseñado para ejecución local sin dependencias externas. Compatible con exportación a PDF para archivado técnico.</p>
+    </footer>
+  </div>
+  <div class="ga-footer">
+    <div class="ga-footer-nav">
+      <a href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">Ghost Academy</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">Un Fantasma en el Sistema</a>
+      <a href="../">Volver al Curso RFID &amp; NFC</a>
+    </div>
+    <p>&copy; Un Fantasma en el Sistema &middot; Ghost Academy &mdash; Contenido educativo para auditorías autorizadas.</p>
+  </div>
+</body>
+</html>

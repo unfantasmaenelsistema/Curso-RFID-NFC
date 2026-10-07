@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 6: Defensa, Hardening, Criptografía Moderna y Marco Legal | RFID Pentesting Master Course</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --emerald: #059669;
+      --code-bg: #030712;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem 1.5rem;
+    }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-primary { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-emerald { background: rgba(5, 150, 105, 0.15); color: #6ee7b7; border: 1px solid rgba(5, 150, 105, 0.3); }
+    h1 {
+      font-size: 2.5rem;
+      line-height: 1.2;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 800px;
+    }
+    .objective-box {
+      background: linear-gradient(to right, rgba(5, 150, 105, 0.08), rgba(6, 182, 212, 0.04));
+      border: 1px solid rgba(5, 150, 105, 0.3);
+      border-left: 4px solid var(--emerald);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 2rem 0;
+    }
+    .objective-box strong { color: #6ee7b7; font-size: 1.05rem; }
+    .toc {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .toc h3 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
+    .toc ol { padding-left: 1.5rem; }
+    .toc li { margin-bottom: 0.5rem; }
+    .toc a { color: var(--cyan); text-decoration: none; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; color: #38bdf8; }
+    section { margin-bottom: 4rem; }
+    h2 {
+      font-size: 1.85rem;
+      color: #f8fafc;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    h3 { font-size: 1.35rem; color: #38bdf8; margin: 2rem 0 1rem 0; }
+    h4 { font-size: 1.1rem; color: #fbbf24; margin: 1.5rem 0 0.5rem 0; }
+    p { margin-bottom: 1.2rem; }
+    ul, ol { margin-bottom: 1.2rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: #f8fafc; }
+    .callout {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.6rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .callout-info { border-left: 4px solid var(--cyan); }
+    .callout-warn { border-left: 4px solid var(--amber); background: rgba(245, 158, 11, 0.05); }
+    .callout-danger { border-left: 4px solid var(--rose); background: rgba(244, 63, 94, 0.05); }
+    .callout-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .callout-info .callout-title { color: #38bdf8; }
+    .callout-warn .callout-title { color: #fbbf24; }
+    .callout-danger .callout-title { color: #fb7185; }
+    .callout-success { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.05); }
+    .callout-success .callout-title { color: #34d399; }
+    .lesson-meta {
+      background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(6,182,212,0.03));
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 0.75rem;
+      padding: 1.5rem 1.75rem;
+      margin: 1.75rem 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 2rem;
+    }
+    .lesson-meta h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #34d399;
+      margin: 0 0 0.6rem 0;
+    }
+    .lesson-meta ul { margin-bottom: 0; }
+    .lesson-meta ul li { margin-bottom: 0.3rem; font-size: 0.92rem; }
+    .lesson-meta .badge-bar { margin-bottom: 0; }
+    .lesson-meta .badge-bar + h4 { margin-top: 1rem; }
+    @media (max-width: 640px) {
+      .lesson-meta { grid-template-columns: 1fr; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: var(--card-bg);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.92rem;
+    }
+    th {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:last-child td { border-bottom: none; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin: 1.2rem 0;
+    }
+    code {
+      font-family: var(--font-mono);
+      background: rgba(148, 163, 184, 0.15);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.88em;
+    }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    .diagram-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 1.75rem 0;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .lab-box {
+      background: #0b1329;
+      border: 2px solid #2563eb;
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      margin: 2.5rem 0;
+    }
+    .lab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e3a8a;
+      padding-bottom: 0.75rem;
+    }
+    .lab-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-item { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #1e3a8a;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .step-content { flex: 1; }
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .container { max-width: 100%; padding: 0; }
+      pre, .diagram-box, .lab-box { border-color: #ccc; background: #f8fafc; color: #111; }
+      h1, h2, h3, strong { color: #000; -webkit-text-fill-color: initial; }
+    }
+
+  /* ===== Ghost Academy branded chrome ===== */
+  .ga-topbar {
+    background: #05070d;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .ga-topbar .ga-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .ga-topbar .ga-brand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(16,185,129,0.35));
+    transition: transform 0.25s;
+    border-radius: 8px;
+  }
+  .ga-topbar .ga-brand:hover img { transform: rotate(-8deg) scale(1.08); }
+  .ga-topbar .ga-brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .ga-topbar .ga-brand-text small { font-size: 0.62rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+  .ga-topbar .ga-brand-text strong { font-size: 0.82rem; color: var(--cyan); letter-spacing: 0.02em; }
+  .ga-topbar nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem; flex-wrap: wrap; }
+  .ga-topbar nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; white-space: nowrap; }
+  .ga-topbar nav a:hover { color: var(--cyan); }
+  .ga-footer {
+    border-top: 1px solid var(--card-border);
+    background: #05070d;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .ga-footer a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .ga-footer a:hover { text-decoration: underline; }
+  .ga-footer-nav { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) {
+    .ga-topbar { justify-content: center; text-align: center; }
+  }
+  </style>
+<script src="/_aistudio-iframe.js?v=2c34bde1"></script></head>
+<body>
+<div class="ga-topbar">
+    <a class="ga-brand" href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">
+      <img src="ghost-academy-logo.png" alt="Un Fantasma en el Sistema" />
+      <span class="ga-brand-text"><small>Ghost Academy</small><strong>SecLearn // RFID &amp; NFC Pentesting</strong></span>
+    </a>
+    <nav>
+      <a href="../">&#8962; Índice del Curso</a>
+      <a href="modulo-5-ataques-mundo-real.html">&larr; Módulo 5</a>
+      
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">unfantasmaenelsistema.com</a>
+    </nav>
+  </div>
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge badge-primary">Módulo 6</span>
+        <span class="badge badge-cyan">Duración: 6 Horas</span>
+        <span class="badge badge-amber">70% Práctica Técnica</span>
+        <span class="badge badge-emerald">Defensa &amp; Hardening</span>
+      </div>
+      <h1>Defensa, Hardening, Criptografía Moderna y Marco Legal</h1>
+      <p class="subtitle">Remediación de vulnerabilidades físicas: MIFARE DESFire EV2/EV3, HID SEOS, módulos SAM, migración de cableado Wiegand a OSDP v2 con Secure Channel (SIA), detección activa de Magic Cards, y redacción de informes con matriz CVSS 3.1 y RoE.</p>
+
+      <div class="objective-box">
+        <strong>🎯 Objetivo Operativo del Módulo:</strong>
+        <p style="margin: 0.4rem 0 0 0;">Proponer planes de remediación y migración realistas a clientes corporativos. Implementar lectores con verificación criptográfica mutua AES-128, detectar tarjetas clonadas antes de abrir el relé, y elaborar un informe pericial formal bajo las exigencias del Código Penal y el RGPD.</p>
+      </div>
+    </header>
+
+    <div class="toc">
+      <h3>📑 Índice de Contenidos del Módulo</h3>
+      <ol>
+        <li><a href="#tema1">Estándares Criptográficos Seguros</a>
+          <ul>
+            <li>MIFARE DESFire EV2/EV3 y HID SEOS: Autenticación Mutua 3-Pass con AES-128 y CMAC</li>
+            <li>La falacia del UID/CSN: por qué el número de serie nunca es un secreto</li>
+            <li>Módulos SAM (Secure Access Module) y almacenamiento de claves seguras</li>
+            <li><strong>Lab 6.1:</strong> Inspección de aplicaciones AID en DESFire y verificación de rechazo de clones</li>
+          </ul>
+        </li>
+        <li><a href="#tema2">Detección Activa de Clones y Protocolo OSDP</a>
+          <ul>
+            <li>Sustitución de Wiegand por OSDP v2 (Open Supervised Device Protocol) con cifrado AES-128</li>
+            <li>Detección proactiva de comandos backdoor (0x40/0x43) y jitter de emuladores</li>
+            <li><strong>Lab 6.2:</strong> Programación de un lector con microcontrolador con filtro anti-Magic Cards</li>
+          </ul>
+        </li>
+        <li><a href="#tema3">Marco Legal, Reglas de Compromiso (RoE) y Redacción de Informes</a>
+          <ul>
+            <li>Delitos relativos a la intrusión física (Código Penal) y RGPD en tarjetas corporativas</li>
+            <li>Métricas de severidad CVSS 3.1 adaptadas a controles de acceso físicos</li>
+            <li>Estrategia de migración multitecnología gradual (lectores híbridos)</li>
+            <li><strong>Lab 6.3:</strong> Elaboración del informe de auditoría técnico y ejecutivo</li>
+          </ul>
+        </li>
+        <li><a href="#hardware">Guía Oficial de Hardware Recomendado (3 Presupuestos)</a></li>
+      </ol>
+    </div>
+
+    <!-- TEMA 1 -->
+    <section id="tema1">
+      <h2>1. Estándares Criptográficos Seguros</h2>
+      <p>La solución definitiva a los ataques de clonación y criptoanálisis no consiste en ofuscar el UID ni en comprar carcasas metálicas: consiste en migrar a <strong>chips criptográficos genuinos con autenticación mutua de clave simétrica fuerte</strong> (AES-128) y arquitectura de archivos basada en aplicaciones.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Comprender el apretón de manos (handshake) con autenticación mutua AES.</li>
+            <li>Aprender la diferencia entre leer un CSN (inseguro) y leer una aplicación protegida con AID dentro de DESFire.</li>
+            <li>Descubrir qué son los Secure Elements y las llaves SAM (Secure Access Module) en los lectores de pared.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">AES-128 CBC/CMAC</span>
+            <span class="badge badge-primary">Application Identifier (AID)</span>
+            <span class="badge badge-primary">SAM (Secure Access Module)</span>
+            <span class="badge badge-primary">Proximity Check</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Proxmark3</span>
+            <span class="badge badge-cyan">DESFire sample cards</span>
+            <span class="badge badge-cyan">Lector OSDP</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>1.1 MIFARE DESFire EV2 / EV3 y HID SEOS</h3>
+      <p>En lugar del modelo plano de sectores de MIFARE Classic, <strong>DESFire</strong> funciona como una tarjeta inteligente con sistema de archivos estructurado (ISO 7816-4):</p>
+      <ul>
+        <li><strong>AID (Application Identifier):</strong> Cada aplicación (Control de accesos, Comedor, Parking) tiene su propio AID de 3 bytes (ej. <code>0x010203</code>) con hasta 14 claves criptográficas independientes.</li>
+        <li><strong>Three-Pass Mutual Authentication:</strong> El lector demuestra a la tarjeta que conoce la clave secreta y la tarjeta demuestra al lector que conoce la clave secreta, generando una clave de sesión efímera ($K_{enc}$) y un vector de inicialización ($IV$).</li>
+        <li><strong>CMAC (Cipher-based Message Authentication Code):</strong> Cada comando posterior lleva un código de integridad criptográfico; si un atacante altera un solo bit en el aire, la tarjeta descarta la orden.</li>
+      </ul>
+
+      <div class="callout callout-danger">
+        <div class="callout-title">⚠️ La Regla de Oro: El UID NO es una Credencial</div>
+        <p>Un error fatal cometido por miles de instaladores es configurar el software de control de accesos para leer el <strong>UID (CSN - Card Serial Number)</strong> de una tarjeta DESFire sin autenticarse contra el fichero cifrado interior. Dado que el UID se transmite en texto plano durante la fase de anticolición de 13.56 MHz, ¡un atacante puede clonar esa credencial en una tarjeta mágica china en 2 segundos exactamente igual que si fuera una tarjeta de 125 kHz de hace 30 años!</p>
+      </div>
+
+      <!-- LAB 6.1 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 6.1: Inspección de Aplicaciones AID en DESFire con Proxmark3</div>
+          <span class="badge badge-primary">Auditoría DESFire</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <pre><code># Inspeccionar una credencial DESFire EV2
+[usb] pm3 --&gt; hf mfdes info
+
+[+] Manufacturing information:
+[+]   Hardware: Vendor ID: 0x04 (NXP), Type: 0x01, Subtype: 0x01 (DESFire)
+[+]   Version : 2.0 (EV2)
+[+]   Storage : 0x1A (4096 bytes EEPROM)
+[+] PICC Master Key Settings: 0x0F (Master key is AES-128, change requires master key)
+
+# Listar aplicaciones AID en la tarjeta
+[usb] pm3 --&gt; hf mfdes getappids
+
+[+] Application IDs found:
+[+]   [0] 00 00 00 (PICC Level)
+[+]   [1] A1 B2 C3 (Access Control Application)</code></pre>
+            <p>Al intentar leer los archivos del AID <code>A1 B2 C3</code> sin autenticación AES-128, la tarjeta responde con <code>0x917E (LENGTH_ERROR / AUTHENTICATION_REQUIRED)</code>. Es matemáticamente imposible clonarla o alterar su contenido con el hardware actual.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">La tarjeta devuelve los identificadores de aplicación pero deniega acceso a los archivos de datos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 2 -->
+    <section id="tema2">
+      <h2>2. Detección Activa de Clones y Protocolo OSDP</h2>
+      <p>Muchos clientes no pueden renovar 5000 tarjetas de empleados de la noche a la mañana. La solución intermedia consiste en <strong>securizar el lector mural y la línea de datos</strong>.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Detectar respuestas de sincronismo anómalas (timing attacks y jitter de microcontroladores emuladores).</li>
+            <li>Monitorear intentos de autenticación con claves por defecto en lectores OSDP v2 con canal cifrado (Secure Channel).</li>
+            <li>Implementar la verificación de contadores de transacciones en base de datos.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-amber">Protocolo OSDP vs Wiegand sin cifrar</span>
+            <span class="badge badge-amber">Detección de tarjetas mágicas por respuesta backdoor</span>
+            <span class="badge badge-amber">Jitter de emulación</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Analizador de protocolo OSDP</span>
+            <span class="badge badge-cyan">Lector HID Signo / iCLASS SE</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>2.1 OSDP v2 (Open Supervised Device Protocol) vs Wiegand</h3>
+      <p>El cableado analógico tradicional Wiegand (cables Verde Data0 y Blanco Data1) transmite pulsos de 5V en texto plano que cualquier espía puede interceptar acoplando un dispositivo como <em>ESPKey</em> detrás del lector en la pared. <strong>OSDP v2</strong> sustituye este cableado por un bus bidireccional RS-485 con canal seguro cifrado con AES-128 (Secure Channel SIA).</p>
+
+      <!-- LAB 6.2 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 6.2: Implementación de Filtro Activo Anti-Magic Cards</div>
+          <span class="badge badge-emerald">Hardening de Firmware</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Configurar la lógica del lector para interrogar con comandos de trampa y bloquear clones Gen1a en el acto.</p>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p><strong>Código de Detección Proactiva de Backdoor (C++ / Arduino PN532):</strong></p>
+            <pre><code>bool detectMagicGen1a() {
+    uint8_t backdoor_cmd[] = { 0x40 }; // Comando Unlock de tarjetas chinas Gen1a
+    uint8_t response[8];
+    uint8_t responseLength = sizeof(response);
+
+    // Enviar trama cruda de 7 bits antes de la autenticación
+    bool ackReceived = nfc.sendRawFrame(backdoor_cmd, 1, response, &amp;responseLength);
+
+    if (ackReceived &amp;&amp; response[0] == 0x0A) {
+        // La tarjeta respondió con ACK al comando secreto de puerta trasera
+        Serial.println("[ALERTA] ¡Tarjeta Mágica Clonada Gen1a Detectada!");
+        triggerSabotageAlarm();
+        denyAccessPermanently();
+        return true; // Clon detectado
+    }
+    return false; // Tarjeta estándar legítima
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">El sistema enciende un LED rojo y bloquea el acceso si detecta una Magic Card Gen1a.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 3 -->
+    <section id="tema3">
+      <h2>3. Marco Legal, Reglas de Compromiso (RoE) y Redacción de Informes</h2>
+      <p>Un pentesting de control de accesos físicos es una actividad de alto riesgo legal. Manipular cerraduras o tarjetas sin autorización expresa constituye delito penal.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Elaborar un documento de autorización de pruebas (Rules of Engagement / Get Out of Jail Card) para intrusión física.</li>
+            <li>Redactar matrices de riesgo CVSS para vulnerabilidades de control de accesos físicos.</li>
+            <li>Proponer planes de migración escalonada (lectores duales multitecnología) para clientes con presupuestos limitados.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Rules of Engagement (RoE)</span>
+            <span class="badge badge-cyan">CVSS en seguridad física</span>
+            <span class="badge badge-cyan">Plan de migración multitecnología</span>
+            <span class="badge badge-cyan">RGPD y logs de control</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">Plantilla de Informe de Auditoría</span>
+            <span class="badge badge-primary">Calculadora CVSS 3.1</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>3.1 Tipificación Penal y RGPD</h3>
+      <ul>
+        <li><strong>Código Penal Español (Art. 197 y 264):</strong> Acceder a sistemas informáticos de acceso o forzar puertas digitales sin título habilitante se castiga con penas de prisión de 6 meses a 3 años. Se exige un <em>Contrato de Prestación de Servicios con Reglas de Compromiso (RoE)</em> firmado por la dirección legal antes de tocar la primera tarjeta.</li>
+        <li><strong>Reglamento General de Protección de Datos (RGPD):</strong> El UID de la tarjeta y los registros de paso de los empleados son <em>datos personales protegidos</em>. Los volcados de auditoría deben almacenarse en unidades cifradas (LUKS/BitLocker) y destruirse formalmente al cierre del proyecto.</li>
+      </ul>
+
+      <h3>3.2 Matriz de Severidad CVSS 3.1 en Accesos Físicos</h3>
+      <p>Para que la dirección entienda la gravedad de una tarjeta MIFARE Classic o Wiegand 26, el informe debe cuantificar el riesgo:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Métrica CVSS 3.1</th>
+            <th>Valor Evaluado</th>
+            <th>Justificación Técnica</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Attack Vector (AV)</strong></td>
+            <td><strong>Physical (P)</strong></td>
+            <td>El atacante debe situarse a proximidad física del lector o de la credencial.</td>
+          </tr>
+          <tr>
+            <td><strong>Attack Complexity (AC)</strong></td>
+            <td><strong>Low (L)</strong></td>
+            <td>Herramientas automatizadas como Flipper Zero o Proxmark3 resuelven el clon en segundos.</td>
+          </tr>
+          <tr>
+            <td><strong>Privileges Required (PR)</strong></td>
+            <td><strong>None (N)</strong></td>
+            <td>Cualquier visitante en la recepción puede capturar el identificador.</td>
+          </tr>
+          <tr>
+            <td><strong>Scope (S)</strong></td>
+            <td><strong>Changed (C)</strong></td>
+            <td>La brecha física permite acceder al CPD y vulnerar la red lógica corporativa interna.</td>
+          </tr>
+          <tr>
+            <td><strong>Puntuación Global</strong></td>
+            <td><strong>7.6 (High) - 8.2 (High)</strong></td>
+            <td>Riesgo crítico de compromiso total de instalaciones.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+        <div class="callout-title">✅ Resultado Esperado</div>
+        <p style="margin: 0;">Documento ejecutivo listo para entrega a dirección técnica.</p>
+      </div>
+    </section>
+
+    <!-- HARDWARE SECTION -->
+    <section id="hardware">
+      <h2>🛠️ Hardware Recomendado para los Alumnos (3 Opciones de Presupuesto)</h2>
+      <p>A continuación se detallan las 3 opciones de inversión para el equipamiento del laboratorio práctico:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Perfil del Alumno</th>
+            <th>Inversión Aprox.</th>
+            <th>Componentes Principales</th>
+            <th>Cobertura del Curso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Básico / Estudiante</strong></td>
+            <td>35€ - 50€</td>
+            <td>
+              • Smartphone Android con NFC habilitado<br>
+              • Lector USB ACR122U o placa PN532<br>
+              • 10 Tarjetas MIFARE Classic Magic Gen2 (CUID)<br>
+              • 5 Llaveros T5577 (125 kHz)
+            </td>
+            <td><strong>70%</strong><br>(Cubre todo MIFARE, lectura y volcados)</td>
+          </tr>
+          <tr>
+            <td><strong>Intermedio / Pentester (Recomendado)</strong></td>
+            <td>110€ - 160€</td>
+            <td>
+              • <strong>Proxmark3 Easy 512Kb</strong> (Firmware Iceman)<br>
+              • <strong>Chameleon Ultra</strong> (emulador multi-tarjeta)<br>
+              • Pack mixto Magic Cards (Gen1a, Gen2, Gen4) + T5577<br>
+              • Bobinas detectoras con LED (LF/HF)
+            </td>
+            <td><strong>95%</strong><br>(Cubre sniffing, emulación y crackeo completo)</td>
+          </tr>
+          <tr>
+            <td><strong>Avanzado / Red Team Pro</strong></td>
+            <td>290€ - 380€</td>
+            <td>
+              • Proxmark3 RDV4.01 con módulo Bluetooth y batería<br>
+              • Flipper Zero para operaciones de campo discretas<br>
+              • Chameleon Ultra<br>
+              • Cerradura electromecánica de banco de pruebas
+            </td>
+            <td><strong>100%</strong><br>(Grado profesional de consultora)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn">
+        <div class="callout-title">⚠️ Advertencia Docente Clave para la Compra</div>
+        <p>En AliExpress abundan clones de <strong>Proxmark3 Easy de 256 KB</strong>. Es fundamental exigir el modelo con microcontrolador <strong>AT91SAM7S512 (512 KB)</strong>; de lo contrario, no cabrán las funciones modernas de <code>autopwn</code> y <code>sniffing</code> del firmware Iceman.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>RFID & NFC Pentesting Master Course • Documento Técnico Oficial Autocontenido • Módulo 6</p>
+      <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #64748b;">Diseñado para ejecución local sin dependencias externas. Compatible con exportación a PDF para archivado técnico.</p>
+    </footer>
+  </div>
+  <div class="ga-footer">
+    <div class="ga-footer-nav">
+      <a href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">Ghost Academy</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">Un Fantasma en el Sistema</a>
+      <a href="../">Volver al Curso RFID &amp; NFC</a>
+    </div>
+    <p>&copy; Un Fantasma en el Sistema &middot; Ghost Academy &mdash; Contenido educativo para auditorías autorizadas.</p>
+  </div>
+</body>
+</html>

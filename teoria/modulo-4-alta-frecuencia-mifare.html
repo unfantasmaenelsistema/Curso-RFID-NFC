@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 4: Alta Frecuencia (HF 13.56 MHz) — El Ecosistema MIFARE | RFID Pentesting Master Course</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #10b981;
+      --cyan: #06b6d4;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+      --code-bg: #030712;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem 1.5rem;
+    }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 2rem;
+      margin-bottom: 3rem;
+    }
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .badge-primary { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-rose { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+    h1 {
+      font-size: 2.5rem;
+      line-height: 1.2;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 800px;
+    }
+    .objective-box {
+      background: linear-gradient(to right, rgba(244, 63, 94, 0.08), rgba(16, 185, 129, 0.04));
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      border-left: 4px solid var(--rose);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 2rem 0;
+    }
+    .objective-box strong { color: #fb7185; font-size: 1.05rem; }
+    .toc {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .toc h3 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem; }
+    .toc ol { padding-left: 1.5rem; }
+    .toc li { margin-bottom: 0.5rem; }
+    .toc a { color: var(--cyan); text-decoration: none; font-weight: 500; }
+    .toc a:hover { text-decoration: underline; color: #38bdf8; }
+    section { margin-bottom: 4rem; }
+    h2 {
+      font-size: 1.85rem;
+      color: #f8fafc;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    h3 { font-size: 1.35rem; color: #38bdf8; margin: 2rem 0 1rem 0; }
+    h4 { font-size: 1.1rem; color: #fbbf24; margin: 1.5rem 0 0.5rem 0; }
+    p { margin-bottom: 1.2rem; }
+    ul, ol { margin-bottom: 1.2rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+    strong { color: #f8fafc; }
+    .callout {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.6rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .callout-info { border-left: 4px solid var(--cyan); }
+    .callout-warn { border-left: 4px solid var(--amber); background: rgba(245, 158, 11, 0.05); }
+    .callout-danger { border-left: 4px solid var(--rose); background: rgba(244, 63, 94, 0.05); }
+    .callout-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .callout-info .callout-title { color: #38bdf8; }
+    .callout-warn .callout-title { color: #fbbf24; }
+    .callout-danger .callout-title { color: #fb7185; }
+    .callout-success { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.05); }
+    .callout-success .callout-title { color: #34d399; }
+    .lesson-meta {
+      background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(6,182,212,0.03));
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 0.75rem;
+      padding: 1.5rem 1.75rem;
+      margin: 1.75rem 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 2rem;
+    }
+    .lesson-meta h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #34d399;
+      margin: 0 0 0.6rem 0;
+    }
+    .lesson-meta ul { margin-bottom: 0; }
+    .lesson-meta ul li { margin-bottom: 0.3rem; font-size: 0.92rem; }
+    .lesson-meta .badge-bar { margin-bottom: 0; }
+    .lesson-meta .badge-bar + h4 { margin-top: 1rem; }
+    @media (max-width: 640px) {
+      .lesson-meta { grid-template-columns: 1fr; }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: var(--card-bg);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+      font-size: 0.92rem;
+    }
+    th {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:last-child td { border-bottom: none; }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin: 1.2rem 0;
+    }
+    code {
+      font-family: var(--font-mono);
+      background: rgba(148, 163, 184, 0.15);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      font-size: 0.88em;
+    }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    .diagram-box {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin: 1.75rem 0;
+      font-family: var(--font-mono);
+      color: #38bdf8;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .lab-box {
+      background: #0b1329;
+      border: 2px solid #2563eb;
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      margin: 2.5rem 0;
+    }
+    .lab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid #1e3a8a;
+      padding-bottom: 0.75rem;
+    }
+    .lab-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-item { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
+    .step-num {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #1e3a8a;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .step-content { flex: 1; }
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding-top: 2rem;
+      margin-top: 4rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .container { max-width: 100%; padding: 0; }
+      pre, .diagram-box, .lab-box { border-color: #ccc; background: #f8fafc; color: #111; }
+      h1, h2, h3, strong { color: #000; -webkit-text-fill-color: initial; }
+    }
+
+  /* ===== Ghost Academy branded chrome ===== */
+  .ga-topbar {
+    background: #05070d;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .ga-topbar .ga-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .ga-topbar .ga-brand img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(16,185,129,0.35));
+    transition: transform 0.25s;
+    border-radius: 8px;
+  }
+  .ga-topbar .ga-brand:hover img { transform: rotate(-8deg) scale(1.08); }
+  .ga-topbar .ga-brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+  .ga-topbar .ga-brand-text small { font-size: 0.62rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+  .ga-topbar .ga-brand-text strong { font-size: 0.82rem; color: var(--cyan); letter-spacing: 0.02em; }
+  .ga-topbar nav { display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem; flex-wrap: wrap; }
+  .ga-topbar nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; white-space: nowrap; }
+  .ga-topbar nav a:hover { color: var(--cyan); }
+  .ga-footer {
+    border-top: 1px solid var(--card-border);
+    background: #05070d;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .ga-footer a { color: var(--cyan); text-decoration: none; font-weight: 600; }
+  .ga-footer a:hover { text-decoration: underline; }
+  .ga-footer-nav { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  @media (max-width: 640px) {
+    .ga-topbar { justify-content: center; text-align: center; }
+  }
+  </style>
+<script src="/_aistudio-iframe.js?v=2c34bde1"></script></head>
+<body>
+<div class="ga-topbar">
+    <a class="ga-brand" href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">
+      <img src="ghost-academy-logo.png" alt="Un Fantasma en el Sistema" />
+      <span class="ga-brand-text"><small>Ghost Academy</small><strong>SecLearn // RFID &amp; NFC Pentesting</strong></span>
+    </a>
+    <nav>
+      <a href="../">&#8962; Índice del Curso</a>
+      <a href="modulo-3-baja-frecuencia-125khz.html">&larr; Módulo 3</a>
+      <a href="modulo-5-ataques-mundo-real.html">Módulo 5 &rarr;</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">unfantasmaenelsistema.com</a>
+    </nav>
+  </div>
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="badge badge-primary">Módulo 4</span>
+        <span class="badge badge-cyan">Duración: 8 Horas</span>
+        <span class="badge badge-amber">85% Práctica Técnica</span>
+        <span class="badge badge-rose">Criptoanálisis Crypto-1</span>
+      </div>
+      <h1>Alta Frecuencia (HF 13.56 MHz) — El Ecosistema MIFARE</h1>
+      <p class="subtitle">El núcleo de la auditoría física: mapa de memoria, Value Blocks y condiciones de acceso, ataques de diccionario, vulnerabilidad Darkside del PRNG, ataques Nested y Hardnested y autopwn total.</p>
+
+      <div class="objective-box">
+        <strong>🎯 Objetivo Operativo del Módulo:</strong>
+        <p style="margin: 0.4rem 0 0 0;">Desmontar matemáticamente el cifrado propietario Crypto-1 de NXP. Extraer las claves secretas Key A y Key B de los 16 sectores de cualquier tarjeta MIFARE Classic 1K/4K y volcar el 100% de la memoria para clonación en Magic Cards.</p>
+      </div>
+    </header>
+
+    <div class="toc">
+      <h3>📑 Índice de Contenidos del Módulo</h3>
+      <ol>
+        <li><a href="#tema1">Mapa de Memoria de MIFARE Classic 1K / 4K</a>
+          <ul>
+            <li>Organización en sectores, bloques de datos, Value Blocks y Sector Trailer</li>
+            <li>Access Bits (C1, C2, C3) y cálculo de permisos</li>
+            <li><strong>Lab 4.1:</strong> Decodificación e inspección hexadecimal de volcados (.bin y .mct)</li>
+          </ul>
+        </li>
+        <li><a href="#tema2">Ataques de Claves por Defecto y Diccionario</a>
+          <ul>
+            <li>Diccionarios de claves de fábrica de fabricantes de lectores</li>
+            <li>Auditorías exprés con Mifare Classic Tool (MCT) en Android</li>
+            <li><strong>Lab 4.2:</strong> Auditoría masiva de sectores semiprotegidos (hf mf chk --dump)</li>
+          </ul>
+        </li>
+        <li><a href="#tema3">Ataque Darkside (Courtois 2009) y PRNG Débil</a>
+          <ul>
+            <li>Fuga de información en los bits de paridad en respuestas NACK cifradas</li>
+            <li>Obtención de la primera clave cuando se desconocen todas</li>
+            <li><strong>Lab 4.3:</strong> Crackeo de la primera clave con mfcuk y hf mf darkside</li>
+          </ul>
+        </li>
+        <li><a href="#tema4">Ataques Nested y Hardnested</a>
+          <ul>
+            <li>Salto de sector a sector midiendo distancia de nonces criptográficos</li>
+            <li>Tarjetas MIFARE Hardened y aceleración por GPU</li>
+            <li><strong>Lab 4.4:</strong> Ejecución de Autopwn completo (hf mf autopwn) y volcado 100%</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <!-- TEMA 1 -->
+    <section id="tema1">
+      <h2>1. Mapa de Memoria de MIFARE Classic 1K / 4K</h2>
+      <p>Una tarjeta <strong>MIFARE Classic 1K</strong> contiene 1024 bytes de memoria EEPROM estructurados en <strong>16 sectores independientes</strong> (Sectores 0 a 15). Cada sector cuenta con <strong>4 bloques de 16 bytes</strong> (64 bloques en total, numerados del 0 al 63).</p>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        MAPA DE MEMORIA DE MIFARE CLASSIC 1K                            │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   SECTOR 0:                                                                            │
+│   ┌──────────────────────────────────────────────────────────────────────────────────┐ │
+│   │ Bloque 0: [ UID (4B) ] [ BCC ] [ SAK/ATQA ] [ Datos Fabricante NXP (Inmutable) ] │ │
+│   │ Bloque 1: [ Bloque de Datos de Usuario o Bloque de Valor (16 Bytes)            ] │ │
+│   │ Bloque 2: [ Bloque de Datos de Usuario o Bloque de Valor (16 Bytes)            ] │ │
+│   │ Bloque 3: [ KEY A (6B) ] [ ACCESS BITS (4B) ] [ User Byte ] [ KEY B (6B)       ] │ │ &lt;- Sector Trailer
+│   └──────────────────────────────────────────────────────────────────────────────────┘ │
+│                                                                                        │
+│   SECTOR 1 a SECTOR 15 (Estructura idéntica):                                          │
+│   ┌──────────────────────────────────────────────────────────────────────────────────┐ │
+│   │ Bloque 0: [ Bloque de Datos / Valor (16 Bytes)                                 ] │ │
+│   │ Bloque 1: [ Bloque de Datos / Valor (16 Bytes)                                 ] │ │
+│   │ Bloque 2: [ Bloque de Datos / Valor (16 Bytes)                                 ] │ │
+│   │ Bloque 3: [ KEY A (6B) ] [ ACCESS BITS (4B) ] [ User Byte ] [ KEY B (6B)       ] │ │ &lt;- Sector Trailer
+│   └──────────────────────────────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Entender el mapa de memoria: 16 sectores con 4 bloques de 16 bytes cada uno.</li>
+            <li>Interpretar los Access Bits (condiciones de lectura/escritura) y calcularlos sin bloquear la tarjeta.</li>
+            <li>Comprender cómo funcionan los bloques de saldo monetario (Value Blocks con redundancia invertida).</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">Sector Trailer</span>
+            <span class="badge badge-primary">Clave Key A y Key B</span>
+            <span class="badge badge-primary">Access Bits (C1, C2, C3)</span>
+            <span class="badge badge-primary">Value Block Architecture</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Mifare Classic Tool (MCT en Android)</span>
+            <span class="badge badge-cyan">Proxmark3</span>
+            <span class="badge badge-cyan">Calculadora de Access Bits</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>1.1 Anatomía del Bloque de Valor (Value Block)</h3>
+      <p>Para aplicaciones de monedero electrónico (cafeterías, lavanderías, máquinas de vending), MIFARE define una estructura especial con detección de errores y operaciones atómicas de <code>INCREMENT</code>, <code>DECREMENT</code> y <code>RESTORE</code>:</p>
+
+      <div class="diagram-box">
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        ESTRUCTURA DE UN VALUE BLOCK (16 BYTES)                         │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│   Bytes 0-3:   Valor con signo en complemento a 2 (Little Endian):  [ v ]              │
+│   Bytes 4-7:   Inversión bit a bit del valor (NOT bitwise):         [ ~v ]             │
+│   Bytes 8-11:  Copia exacta de respaldo del valor:                  [ v ]              │
+│   Byte 12:     Dirección del bloque de almacenamiento:              [ adr ]            │
+│   Byte 13:     Inversión bit a bit de la dirección:                 [ ~adr ]           │
+│   Byte 14:     Copia de la dirección:                               [ adr ]            │
+│   Byte 15:     Inversión bit a bit de la dirección:                 [ ~adr ]           │
+│                                                                                        │
+│   Ejemplo para un saldo de 25.00 € (2500 céntimos = 0x000009C4) en bloque 4:           │
+│   v    = C4 09 00 00                                                                   │
+│   ~v   = 3B F6 FF FF                                                                   │
+│   adr  = 04 FB 04 FB                                                                   │
+│   Bloque 4 = C4 09 00 00 3B F6 FF FF C4 09 00 00 04 FB 04 FB                           │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+      </div>
+
+      <h3>1.2 Decodificación de los Access Bits (Bytes 6, 7 y 8 del Trailer)</h3>
+      <p>Los 3 bits de control <code>C1, C2, C3</code> determinan si los bloques de datos y el propio sector trailer pueden leerse o escribirse con la Key A o la Key B. Por diseño de seguridad de NXP, <strong>la Key A nunca puede leerse</strong>: si se lee el Sector Trailer, el lector siempre recibirá ceros (<code>00 00 00 00 00 00</code>) en los primeros 6 bytes.</p>
+
+      <!-- LAB 4.1 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 4.1: Decodificación e Inspección Hexadecimal de Volcados (.bin / .mct)</div>
+          <span class="badge badge-primary">Forense Hexadecimal</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Inspección del archivo binario con hexdump:</strong>
+            <pre><code># Inspeccionar el bloque 0 y los trailers del volcado tarjeta.bin (1024 bytes)
+hexdump -C tarjeta.bin | head -n 8
+
+00000000  a4 1b 89 22 14 08 04 00  01 02 03 04 05 06 07 08  |..."............| &lt;- Bloque 0
+00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000020  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000030  a0 a1 a2 a3 a4 a5 ff 07  80 69 b0 b1 b2 b3 b4 b5  |.......i........| &lt;- Trailer S0</code></pre>
+            <p>En el offset <code>0x30</code> (Sector Trailer 0):</p>
+            <ul>
+              <li><strong>Key A:</strong> <code>A0 A1 A2 A3 A4 A5</code></li>
+              <li><strong>Access Bits:</strong> <code>FF 07 80 69</code> (Condición de transporte: lectura y escritura abierta)</li>
+              <li><strong>Key B:</strong> <code>B0 B1 B2 B3 B4 B5</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Mapeo completo de qué bloques son modificables y cuáles están protegidos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 2 -->
+    <section id="tema2">
+      <h2>2. Ataques de Claves por Defecto y Diccionario</h2>
+      <p>Más del 60% de las instalaciones comerciales de control de accesos nunca cambian las claves de fábrica en todos los sectores, o emplean diccionarios estandarizados por integradores.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Auditar un lote de tarjetas contra las 5.000 claves más comunes en instalaciones reales.</li>
+            <li>Identificar si una instalación ha cambiado solo la Key A y dejado la Key B por defecto.</li>
+            <li>Utilizar Mifare Classic Tool en smartphone para auditorías rápidas.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">Diccionarios de claves comunes</span>
+            <span class="badge badge-cyan">Key A vs Key B privileges</span>
+            <span class="badge badge-cyan">Transport keys</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-amber">MCT (Android)</span>
+            <span class="badge badge-amber">Proxmark3 con default_keys.dic</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 4.2 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 4.2: Auditoría Masiva de Sectores Semiprotegidos</div>
+          <span class="badge badge-amber">Ataque de Diccionario</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Ejecutar una prueba masiva con el diccionario de 1000 claves en Proxmark3 y volcar todos los sectores accesibles.</p>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <pre><code>[usb] pm3 --&gt; hf mf chk --dump
+
+[+] Testing 16 sectors using default keys dictionary...
+[+] Sector 00 | Key A: FFFFFFFFFFFF | Key B: FFFFFFFFFFFF
+[+] Sector 01 | Key A: A0A1A2A3A4A5 | Key B: B0B1B2B3B4B5
+[+] Sector 02 | Key A: D3F7D3F7D3F7 | Key B: [UNKNOWN]
+[+] Sector 03 | Key A: [UNKNOWN]    | Key B: [UNKNOWN]  &lt;- Sector bloqueado
+...
+[+] Found 28 of 32 keys. Dump saved to hf-mf-A41B8922-dump.bin</code></pre>
+            <p>Con solo tener <strong>una sola clave</strong> de cualquier sector, podemos saltar a los sectores desconocidos mediante el ataque <em>Nested</em>.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Recuperación de al menos un 50-80% de los sectores en sistemas mal configurados.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 3 -->
+    <section id="tema3">
+      <h2>3. Ataque Darkside (Courtois 2009) y PRNG Débil</h2>
+      <p>¿Qué ocurre si la tarjeta tiene <strong>todas las claves cambiadas</strong> y desconocidas? En 2009, el criptógrafo Nicolas T. Courtois descubrió el ataque <strong>Darkside</strong>.</p>
+      <p>Cuando un lector envía una clave errónea en una autenticación MIFARE, la tarjeta responde con un código NACK cifrado de 4 bits. Sin embargo, debido a un fallo de diseño en la función de paridad del algoritmo Crypto-1, <strong>el bit de paridad se calcula antes de cifrar</strong>. Al enviar miles de consultas con tiempos de reloj cuidadosamente calculados, la tarjeta filtra bits del estado interno del generador pseudoaleatorio (LFSR de 48 bits), permitiendo resolver la primera clave secreta en menos de 3 minutos.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Comprender la debilidad del generador de números pseudoaleatorios (PRNG) de NXP.</li>
+            <li>Ejecutar el ataque Darkside para extraer el primer vector de autenticación.</li>
+            <li>Aprender por qué las tarjetas modernas con "Hardened PRNG" resisten el Darkside.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-amber">Parity bits side-channel</span>
+            <span class="badge badge-amber">NACK leakage</span>
+            <span class="badge badge-amber">Linear Feedback Shift Register (LFSR)</span>
+            <span class="badge badge-amber">Crypto-1 state recovery</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">mfcuk (MiFare Classic Universal toolKit)</span>
+            <span class="badge badge-primary">Proxmark3 CLI</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 4.3 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 4.3: Crackeo de la Primera Clave con Darkside</div>
+          <span class="badge badge-rose">Criptoanálisis Darkside</span>
+        </div>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <pre><code>[usb] pm3 --&gt; hf mf darkside
+
+[+] Card has weak PRNG! Starting Darkside attack against Sector 0 Key A...
+[+] Gathering parity leaks from NACK frames...
+[#] Nonce: 7f81ab12 | Parity: 1
+[#] Nonce: 7f81ab14 | Parity: 0
+[+] Candidate state found after 412 queries!
+[+] Valid Key Found for Sector 0 Key A: 4B1299A0CF21
+[+] Time elapsed: 1 minute 42 seconds.</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Descubrimiento de Key A = A0 B1 C2 D3 E4 F5.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMA 4 -->
+    <section id="tema4">
+      <h2>4. Ataques Nested y Hardnested</h2>
+      <p>Una vez recuperada al menos una clave válida (mediante diccionario o Darkside), el ataque <strong>Nested</strong> aprovecha que el PRNG de MIFARE Classic no es verdaderamente aleatorio, sino una función determinista basada en el tiempo transcurrido desde el reset ($n_T$). Al autenticarse en el sector conocido y solicitar una segunda autenticación en el sector objetivo, la distancia temporal entre nonces revela la clave en milisegundos.</p>
+
+      <div class="lesson-meta">
+        <div>
+          <h4>🎯 Objetivos de Aprendizaje</h4>
+          <ul>
+            <li>Entender el ataque Nested clásico para tarjetas con PRNG predecible.</li>
+            <li>Ejecutar el ataque Hardnested (Carlo Meijer 2015) para tarjetas con PRNG parcheado.</li>
+            <li>Acelerar el crackeo mediante tablas precomputadas o GPU.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>🔑 Conceptos Clave</h4>
+          <div class="badge-bar">
+            <span class="badge badge-primary">Nested attack</span>
+            <span class="badge badge-primary">Hardnested attack</span>
+            <span class="badge badge-primary">State collapse</span>
+            <span class="badge badge-primary">Crapto1 library</span>
+          </div>
+          <h4>🧰 Herramientas de este Laboratorio</h4>
+          <div class="badge-bar">
+            <span class="badge badge-cyan">mfoc (Mifare Flawed Offline Cracker)</span>
+            <span class="badge badge-cyan">Proxmark3 autopwn</span>
+            <span class="badge badge-cyan">Chameleon Ultra</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LAB 4.4 -->
+      <div class="lab-box">
+        <div class="lab-header">
+          <div class="lab-title">🛠️ Lab 4.4: Ejecución del Flujo Completo Autopwn (hf mf autopwn)</div>
+          <span class="badge badge-primary">Pipeline Total</span>
+        </div>
+        <p><strong>Meta del Lab:</strong> Ejecutar el pipeline autónomo que selecciona inteligentemente Chk -&gt; Darkside -&gt; Nested -&gt; Hardnested hasta volcar el 100% de la tarjeta.</p>
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <pre><code>[usb] pm3 --&gt; hf mf autopwn
+
+[+] Phase 1: Checking default keys dictionary... (22 keys found)
+[+] Phase 2: Starting Nested attack for remaining 10 keys...
+[+] Nested: Sector 3 Key A found: 1A2B3C4D5E6F
+[+] Nested: Sector 3 Key B found: 998877665544
+...
+[+] All 32 keys retrieved successfully! (100% dump)
+[+] Saving complete card memory to dump.bin and dump.json...
+[+] Card is fully cracked and ready for cloning.</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-success" style="margin: 1.25rem 0 0 0;">
+          <div class="callout-title">✅ Resultado Esperado</div>
+          <p style="margin: 0;">Obtención de todas las claves Key A y Key B y generación del archivo .bin íntegro.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>RFID & NFC Pentesting Master Course • Documento Técnico Oficial Autocontenido • Módulo 4</p>
+      <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #64748b;">Diseñado para ejecución local sin dependencias externas. Compatible con exportación a PDF para archivado técnico.</p>
+    </footer>
+  </div>
+  <div class="ga-footer">
+    <div class="ga-footer-nav">
+      <a href="https://www.ghostacademy.unfantasmaenelsistema.com" target="_blank" rel="noopener">Ghost Academy</a>
+      <a href="https://www.unfantasmaenelsistema.com" target="_blank" rel="noopener">Un Fantasma en el Sistema</a>
+      <a href="../">Volver al Curso RFID &amp; NFC</a>
+    </div>
+    <p>&copy; Un Fantasma en el Sistema &middot; Ghost Academy &mdash; Contenido educativo para auditorías autorizadas.</p>
+  </div>
+</body>
+</html>
